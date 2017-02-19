@@ -1,0 +1,35 @@
+// Variables
+@import "variables/colors/colors";
+@import "variables/dimensions/dimensions";
+@import "variables/typography/typography";
+@import "variables/positions/positions";
+@import "variables/easings/easings";
+@import "variables/breakpoints/breakpoints";
+@import "variables/layers/layers";
+
+// Vendor
+@import "vendor/normalize/normalize";
+@import "vendor/flexboxgrid/flexboxgrid";
+@import "vendor/family/family";
+@import "vendor/include-media/include-media";
+
+// Utils
+@import "utils/mixins/mixins";
+@import "utils/animations/animations";
+@import "utils/placeholders/placeholders";
+@import "utils/fonts/fonts";
+
+// Base
+@import "base/global/global";
+
+// Layout
+
+// Import your layout assets here..
+
+// UI
+@import "ui/menu/menu";
+@import "ui/header/header";
+@import "ui/footer/footer";
+@import "ui/collection/collection";
+
+
