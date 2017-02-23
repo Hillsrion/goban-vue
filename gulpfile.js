@@ -46,7 +46,9 @@ gulp.task('sass', function() {
 // Start Browsersync
 gulp.task('browserSync', function() {
     browserSync.init({
-        proxy: 'local.jeanne'
+        server: {
+            baseDir: ''
+        }
     })
 });
 
