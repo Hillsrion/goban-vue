@@ -1,0 +1,29 @@
+@mixin borders-slot($format) {
+    &:nth-child(#{$format}n) {
+        &::before {
+            right: 0;
+            width: 50%;
+        }
+        &::after {
+            right: 0;
+        }
+    }
+    &:nth-child(#{$format}n + 1) {
+        &::before {
+            left: 50%;
+            width: 50%;
+        }
+    }
+    &:nth-child(-n + #{$format}) {
+        &::after {
+            height: 50%;
+            top: 50%;
+        }
+    }
+    &:nth-last-child(-n + #{$format}) {
+        &::after {
+            height: calc(50% + 4px);
+            bottom:0;
+        }
+    }
+}

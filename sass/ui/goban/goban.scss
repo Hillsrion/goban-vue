@@ -1,0 +1,25 @@
+.goban {
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    &--small {
+        $size:9;
+        width: $slot-size*$size;
+    }
+    &--medium {
+        $size:13;
+        width: $slot-size*$size;
+    }
+    &--large {
+        $size: 19;
+        width: $slot-size*$size;
+    }
+    &__inner {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        overflow: hidden;
+    }
+}

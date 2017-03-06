@@ -1,0 +1,12 @@
+.stone {
+    width: $stone-size;
+    height: $stone-size;
+    border-radius: 100%;
+    transform: translate3d(1px,1px,0);
+    &--black {
+        background-color: black;
+    }
+    &--white {
+        background-color: white;
+    }
+}

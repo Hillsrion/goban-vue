@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Hillsrion's Goban</title>
+    <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
     <div id="app">
-        <div class="goban"></div>
-        <div class="controls"></div>
+        <goban :size="medium">
+            <div class="goban__inner">
+                <goban-slot v-for='n in slotCount'>
+                    <div slot="stone-wrapper">
+                        <stone :color="colorPlayer"></stone>
+                    </div>
+                </goban-slot>
+            </div>
+        </goban>
+        <!--<panel></panel>-->
     </div>
     <script type="text/javascript" src="js/build/app.js"></script>
 </body>

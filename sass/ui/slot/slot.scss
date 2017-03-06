@@ -1,0 +1,40 @@
+.slot {
+    width: $slot-size;
+    height: $slot-size;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &::before,&::after {
+        content: '';
+        display: block;
+        position: absolute;
+        background-color: black;
+        //transform: translate3d(0,-50%,0);
+    }
+    &::before {
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: $slot-border-size;
+    }
+    &::after {
+        left: 50%;
+        top: 0;
+        width: $slot-border-size;
+        height: 100%;
+    }
+    .goban--small & {
+        @include borders-slot(9);
+    }
+    .goban--medium & {
+        @include borders-slot(13);
+    }
+    .goban--large & {
+        @include borders-slot(19);
+    }
+    &__shadow {
+        @extend .stone;
+        background-color: transparentize(black, 0.4);
+    }
+}

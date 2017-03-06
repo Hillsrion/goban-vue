@@ -89,6 +89,8 @@ gulp.task('default', ['sass', 'minify-css', 'minify-js']);
 // Starting browsersync
 gulp.task('dev', ['browserSync','sass', 'minify-css', 'minify-js'], function() {
     gulp.watch(conf.watch.scss, ['sass']);
+    gulp.watch("scss/**/**/*.scss", ['sass']);
     gulp.watch(conf.watch.css, ['minify-css']);
     gulp.watch(conf.watch.js, ['minify-js']);
+    gulp.watch('js/components/*.js', ['minify-js']);
 });
