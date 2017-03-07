@@ -1,19 +1,20 @@
 import Vue from "vue"
 import goban from "./components/goban"
 import gobanSlot from "./components/gobanSlot"
+import gobanMarker from "./components/gobanMarker"
 import stone from "./components/Stone"
 import lodash from "lodash"
 const vm = new Vue({
     el: "#app",
     data: {
-        slotCount: 13*13,
         size: 13,
         colorPlayer: "black",
         hasCreatedPosition: false,
-        currentGoban: null
+        currentGoban: null,
+        lettersAsMarker: true
     },
     computed: {
-        slots() {
+        slotPositionList() {
             if(!this.hasCreatedPosition) {
                 return this.createSlotsPosition();
                 this.hasCreatedPosition = true;

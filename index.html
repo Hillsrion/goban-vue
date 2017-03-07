@@ -7,13 +7,19 @@
 </head>
 <body>
     <div id="app">
-        <goban :size="medium">
-            <div class="goban__inner">
-                <goban-slot v-for='n in slotCount'>
-                    <div slot="stone-wrapper">
-                        <stone :color="colorPlayer"></stone>
-                    </div>
-                </goban-slot>
+        <goban :size="size">
+            <div class="goban__top">
+                <goban-markers :length="size" :lettersAsMarker="lettersAsMarker"></goban-markers>
+            </div>
+            <div class="goban__bottom">
+                <goban-markers :length="size"></goban-markers>
+                <div class="goban__field">
+                    <goban-slot v-for='position in slotPositionList' :position="position">
+                        <div slot="stone-wrapper">
+                            <stone :color="colorPlayer"></stone>
+                        </div>
+                    </goban-slot>
+                </div>
             </div>
         </goban>
         <!--<panel></panel>-->

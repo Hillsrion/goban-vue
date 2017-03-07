@@ -38,9 +38,9 @@ export default Vue.component('gobanSlot',{
     },
     methods: {
         onClick() {
-            if(!this.isFilled && RulesManager.canSetStone()) {
+            if(!this.isFilled && RulesManager.canSetStone(this.position)) {
                 this.isFilled = true;
-                RulesManager.evalTurn()
+                //RulesManager.evalTurn()
             } else {
                 console.log("There's already a stone")
             }

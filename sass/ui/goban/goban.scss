@@ -3,23 +3,64 @@
     height: 100vh;
     display: flex;
     align-items: center;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: column;
     &--small {
         $size:9;
-        width: $slot-size*$size;
+        .goban__field {
+            width: $slot-size*$size;
+        }
+        .goban__top {
+            width: $slot-size*$size + $markers-x-size;
+        }
     }
     &--medium {
         $size:13;
-        width: $slot-size*$size;
+        .goban__field {
+            width: $slot-size*$size;
+        }
+        .goban__top {
+            width: $slot-size*$size + $markers-x-size;
+        }
     }
     &--large {
         $size: 19;
-        width: $slot-size*$size;
+        .goban__field {
+            width: $slot-size*$size;
+        }
+        .goban__top {
+            width: $slot-size*$size + $markers-x-size;
+        }
     }
-    &__inner {
-        width: 100%;
+    &__bottom {
+        display: flex;
+        .goban__markers {
+            flex-direction: column;
+            width: $markers-x-size;
+            &--x {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+            }
+        }
+        .goban__marker {
+            display: flex;
+            align-items: center;
+        }
+    }
+    &__field {
         display: flex;
         flex-wrap: wrap;
         align-items: flex-start;
         overflow: hidden;
+    }
+    &__markers {
+        display: flex;
+    }
+    &__marker {
+        font-size: 1.8rem;
+        font-weight: bold;
     }
 }
