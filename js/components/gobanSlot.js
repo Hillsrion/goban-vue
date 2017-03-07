@@ -16,6 +16,11 @@ export default Vue.component('gobanSlot',{
             hasShadow: false
         }
     },
+    props: {
+      position: {
+          required: true
+      }
+    },
     computed: {
         classList() {
             let modifier = this.isFilled ? 'is-filled' : '';
