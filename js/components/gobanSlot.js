@@ -2,6 +2,7 @@
  * Created by Ismaël on 25/02/2017.
  */
 import Vue from "vue"
+import RulesManager from "../controllers/RulesManager"
 export default Vue.component('gobanSlot',{
     template:
         `<div @click='onClick' @mouseover='onMouseOver' @mouseleave="onMouseLeave" :class='classList'>
@@ -32,8 +33,9 @@ export default Vue.component('gobanSlot',{
     },
     methods: {
         onClick() {
-            if(!this.isFilled) {
-                this.isFilled = true
+            if(!this.isFilled && RulesManager.canSetStone()) {
+                this.isFilled = true;
+                RulesManager.evalTurn()
             } else {
                 console.log("There's already a stone")
             }
