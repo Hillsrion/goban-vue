@@ -39,10 +39,12 @@
         .goban__markers {
             flex-direction: column;
             width: $markers-x-size;
+            padding: ($slot-size/2 - 0.5rem) 0;
             &--y {
                 display: flex;
-                justify-content: space-around;
+                flex-direction: column;
                 align-items: center;
+                justify-content: space-between;
             }
         }
         .goban__marker {
@@ -52,7 +54,8 @@
     }
     &__top {
         .goban__markers {
-            padding-left: $markers-x-size;
+            padding-left: $markers-x-size + $slot-size/2;
+            padding-right: $slot-size/2;
             &--x {
                 display: flex;
                 justify-content: space-around;

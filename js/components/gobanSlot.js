@@ -2,6 +2,7 @@
  * Created by Ismaël on 25/02/2017.
  */
 import Vue from "vue"
+import EventBus from "../controllers/EventBus"
 import RulesManager from "../controllers/RulesManager"
 export default Vue.component('gobanSlot',{
     template:
@@ -17,9 +18,8 @@ export default Vue.component('gobanSlot',{
         }
     },
     props: {
-      position: {
-          required: true
-      }
+        x: Number,
+        y: Number
     },
     computed: {
         classList() {
@@ -40,7 +40,7 @@ export default Vue.component('gobanSlot',{
         onClick() {
             if(!this.isFilled && RulesManager.canSetStone(this.position)) {
                 this.isFilled = true;
-                //RulesManager.evalTurn()
+                EventBus.$emit("gobanPlay",this.position);
             } else {
                 console.log("There's already a stone")
             }

@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-    <div id="app">
+    <div id="app" @gobanPlay="setPosition(position)">
         <goban :size="size">
             <div class="goban__top">
                 <goban-markers :count="size" :side="markersSide.x" :lettersAsMarker="lettersAsMarker"></goban-markers>
@@ -14,7 +14,7 @@
             <div class="goban__bottom">
                 <goban-markers :count="size" :side="markersSide.y"></goban-markers>
                 <div class="goban__field">
-                    <goban-slot v-for='position in slotPositionList' :position="position">
+                    <goban-slot v-for='position of slotPositionList' :x="position.x" :y="position.y">
                         <div slot="stone-wrapper">
                             <stone :color="colorPlayer"></stone>
                         </div>

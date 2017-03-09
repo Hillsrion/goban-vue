@@ -4,6 +4,7 @@ import gobanSlot from "./components/gobanSlot"
 import gobanMarker from "./components/gobanMarker"
 import stone from "./components/Stone"
 import lodash from "lodash"
+import EventBus from "./controllers/EventBus"
 const vm = new Vue({
     el: "#app",
     data: {
@@ -29,14 +30,20 @@ const vm = new Vue({
     },
     methods: {
         createSlotsPosition() {
-            let result = [];
+            let map = {};
             let size = this.size;
-            for(let y = 1;y <= size;y++) {
+            for(let y = 1; y <= size;y++) {
                 for(let x = 1 ;x <= size; x++) {
-                    result.push({x:x,y:y});
+                    let position = {x:x,y:y,isFilled:false};
+                    let key = x+","+y;
+                    map[key] = position;
                 }
             }
-            return result;
+            console.log(map);
+            return map;
+        },
+        setPosition(position) {
+            this.currentGoban.set(position.x+","+position.y,position);
         }
     }
 });
