@@ -11,35 +11,33 @@ export default Vue.component("goban-markers",{
         return {
             className: "goban__markers",
             letters: "ABCDEFGHIJKLMNOPQRS",
-
         }
     },
     props: {
-        length: {
+        count: {
             type: Number,
             required: true,
             default: 19
         },
-        lettersAsMarker: {
-            type: Boolean,
-            default: true
-        }
+        lettersAsMarker: Boolean,
+        side: String
     },
     computed: {
         classList() {
+            const modifier = this.className+"--"+this.side;
             return [this.className,modifier];
         },
         markerClasses() {
             return ["goban__marker"]
         },
         markers() {
+            console.log(this.lettersAsMarker)
             if(this.lettersAsMarker) {
-                // Taking letters according to the goban size and returning it as an array by joining them.
-                let lettersArray = this.letters.substring(0,this.length).split('');
-                return lettersArray;
+                // Picking letters according to the goban size and returning it as an array by joining them.
+                return this.letters.substring(0, this.count).split('');
             } else {
                 let result = [];
-                for(let i =1; i<=this.length;i++) {
+                for(let i =1; i<=this.count;i++) {
                     result.push(i)
                 }
                 return result;

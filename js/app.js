@@ -11,7 +11,11 @@ const vm = new Vue({
         colorPlayer: "black",
         hasCreatedPosition: false,
         currentGoban: null,
-        lettersAsMarker: true
+        lettersAsMarker: true,
+        markersSide: {
+            x: "x",
+            y: "y   "
+        }
     },
     computed: {
         slotPositionList() {

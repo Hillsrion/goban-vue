@@ -39,7 +39,7 @@
         .goban__markers {
             flex-direction: column;
             width: $markers-x-size;
-            &--x {
+            &--y {
                 display: flex;
                 justify-content: space-around;
                 align-items: center;
@@ -48,6 +48,16 @@
         .goban__marker {
             display: flex;
             align-items: center;
+        }
+    }
+    &__top {
+        .goban__markers {
+            padding-left: $markers-x-size;
+            &--x {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+            }
         }
     }
     &__field {

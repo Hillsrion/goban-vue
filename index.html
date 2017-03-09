@@ -9,10 +9,10 @@
     <div id="app">
         <goban :size="size">
             <div class="goban__top">
-                <goban-markers :length="size" :lettersAsMarker="lettersAsMarker"></goban-markers>
+                <goban-markers :count="size" :side="markersSide.x" :lettersAsMarker="lettersAsMarker"></goban-markers>
             </div>
             <div class="goban__bottom">
-                <goban-markers :length="size"></goban-markers>
+                <goban-markers :count="size" :side="markersSide.y"></goban-markers>
                 <div class="goban__field">
                     <goban-slot v-for='position in slotPositionList' :position="position">
                         <div slot="stone-wrapper">
