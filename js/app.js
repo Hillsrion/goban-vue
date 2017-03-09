@@ -14,14 +14,14 @@ const vm = new Vue({
         lettersAsMarker: true,
         markersSide: {
             x: "x",
-            y: "y   "
+            y: "y"
         }
     },
     computed: {
         slotPositionList() {
             if(!this.hasCreatedPosition) {
-                return this.createSlotsPosition();
                 this.hasCreatedPosition = true;
+                return this.createSlotsPosition();
             } else {
                 return this.currentGoban
             }
@@ -30,9 +30,10 @@ const vm = new Vue({
     methods: {
         createSlotsPosition() {
             let result = [];
-            for(let y = 1;y <= this.size;y++) {
-                for(let x = 1 ;x <= this.size; x++) {
-                    result.push(x+","+y);
+            let size = this.size;
+            for(let y = 1;y <= size;y++) {
+                for(let x = 1 ;x <= size; x++) {
+                    result.push({x:x,y:y});
                 }
             }
             return result;
