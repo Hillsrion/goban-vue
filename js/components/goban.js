@@ -31,6 +31,13 @@ const gobanComponent = Vue.component('goban',{
     },
     methods: {
         playPhase(slot) {
+            /**
+             * I'm assigning there the slot to a copy of the current goban slots.
+             * This modification will not affect the displayed goban. Only the goban property,
+             * registered on the root instance can. The aim there is not evaluate the modifications which need
+             * to be done to get to the next turn.
+             * The modified goban on the data will flow down on this and update the goban
+             */
             this.slots[slot.x+","+slot.y] = slot;
             RulesManager.eval(this.slots);
             EventBus.$emit("goban:endPhase");

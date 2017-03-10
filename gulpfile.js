@@ -93,4 +93,5 @@ gulp.task('dev', ['browserSync','sass', 'minify-css', 'minify-js'], function() {
     gulp.watch(conf.watch.css, ['minify-css']);
     gulp.watch(conf.watch.js, ['minify-js']);
     gulp.watch('js/components/*.js', ['minify-js']);
+    gulp.watch('js/controllers/*.js', ['minify-js']);
 });

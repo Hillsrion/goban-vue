@@ -9,14 +9,17 @@ class RulesManager {
     eval(goban) {
         if(goban) {
             this.currentGoban = goban;
+            return {
+                atariList: this.getAtariList(),
+                takenList: this.getTakenStoneList()
+            }
         } else {
-            console.warn("goban given in evalTurn param is null");
+            console.warn("goban given in param is null");
         }
-        this.getAtariList();
-        this.getTakenStoneList();
     }
     getAtariList() {
         console.log('getAtari');
+        console.log(this.currentGoban);
     }
 
     /**
@@ -33,11 +36,14 @@ class RulesManager {
         }
     }
 
-    isAtari(position) {
+    _isAtari(position) {
         return false;
     }
-    isKo(position) {
+    _isKo(position) {
         return false;
+    }
+    getConnectedArea() {
+
     }
     getTakenStoneList() {
         console.log('getTakenStoneList');
