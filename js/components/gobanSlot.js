@@ -4,6 +4,7 @@
 import Vue from "vue"
 import EventBus from "../controllers/EventBus"
 import RulesManager from "../controllers/RulesManager"
+import slotModel from "../models/slot"
 export default Vue.component('gobanSlot',{
     template:
         `<div @click='onClick' @mouseover='onMouseOver' @mouseleave="onMouseLeave" :class='classList'>
@@ -14,7 +15,9 @@ export default Vue.component('gobanSlot',{
         return {
             className: "slot",
             isFilled: false,
-            hasShadow: false
+            isUsable: true,
+            hasShadow: false,
+            time: null
         }
     },
     props: {
@@ -40,7 +43,9 @@ export default Vue.component('gobanSlot',{
         onClick() {
             if(!this.isFilled && RulesManager.canSetStone(this.position)) {
                 this.isFilled = true;
-                EventBus.$emit("gobanPlay",this.position);
+                this.time = new Date();
+                const payload = new slotModel(this.x,this.y,this.isFilled,this.time);
+                EventBus.$emit("goban:playPhase",payload);
             } else {
                 console.log("There's already a stone")
             }
@@ -55,3 +60,4 @@ export default Vue.component('gobanSlot',{
         }
     }
 })
+

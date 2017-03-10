@@ -6,15 +6,15 @@
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-    <div id="app" @gobanPlay="setPosition(position)">
-        <goban :size="size">
+    <div id="app">
+        <goban :size="size" :slots="getGobanSlots">
             <div class="goban__top">
                 <goban-markers :count="size" :side="markersSide.x" :lettersAsMarker="lettersAsMarker"></goban-markers>
             </div>
             <div class="goban__bottom">
                 <goban-markers :count="size" :side="markersSide.y"></goban-markers>
                 <div class="goban__field">
-                    <goban-slot v-for='position of slotPositionList' :x="position.x" :y="position.y">
+                    <goban-slot v-for='slot in getGobanSlots' :x="slot.x" :y="slot.y">
                         <div slot="stone-wrapper">
                             <stone :color="colorPlayer"></stone>
                         </div>

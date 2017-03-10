@@ -6,7 +6,7 @@ class RulesManager {
     constructor() {
         this.currentGoban = [];
     }
-    evalTurn(goban) {
+    eval(goban) {
         if(goban) {
             this.currentGoban = goban;
         } else {
@@ -16,7 +16,7 @@ class RulesManager {
         this.getTakenStoneList();
     }
     getAtariList() {
-
+        console.log('getAtari');
     }
 
     /**
@@ -40,7 +40,7 @@ class RulesManager {
         return false;
     }
     getTakenStoneList() {
-
+        console.log('getTakenStoneList');
     }
 
 }

@@ -31,7 +31,6 @@ export default Vue.component("goban-markers",{
             return ["goban__marker"]
         },
         markers() {
-            console.log(this.lettersAsMarker)
             if(this.lettersAsMarker) {
                 // Picking letters according to the goban size and returning it as an array by joining them.
                 return this.letters.substring(0, this.count).split('');

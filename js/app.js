@@ -3,7 +3,7 @@ import goban from "./components/goban"
 import gobanSlot from "./components/gobanSlot"
 import gobanMarker from "./components/gobanMarker"
 import stone from "./components/Stone"
-import lodash from "lodash"
+import slotModel from "./models/slot"
 import EventBus from "./controllers/EventBus"
 const vm = new Vue({
     el: "#app",
@@ -11,21 +11,22 @@ const vm = new Vue({
         size: 13,
         colorPlayer: "black",
         hasCreatedPosition: false,
-        currentGoban: null,
+        gobanSlots: null,
         lettersAsMarker: true,
         markersSide: {
             x: "x",
             y: "y"
-        }
+        },
+        turnCount: 1
     },
     computed: {
-        slotPositionList() {
+        getGobanSlots() {
             if(!this.hasCreatedPosition) {
                 this.hasCreatedPosition = true;
+                this.gobanSlots = this.createSlotsPosition();
                 return this.createSlotsPosition();
-            } else {
-                return this.currentGoban
             }
+            return this.gobanSlots
         }
     },
     methods: {
@@ -34,16 +35,25 @@ const vm = new Vue({
             let size = this.size;
             for(let y = 1; y <= size;y++) {
                 for(let x = 1 ;x <= size; x++) {
-                    let position = {x:x,y:y,isFilled:false};
+                    let model = new slotModel(x,y,false,null);
                     let key = x+","+y;
-                    map[key] = position;
+                    map[key] = model;
                 }
             }
-            console.log(map);
             return map;
         },
-        setPosition(position) {
-            this.currentGoban.set(position.x+","+position.y,position);
+        endTurn(payload) {
+            //const slot = payload.slot;
+            //this.goban[slot.x+","+slot.y] = slot;
+            this.turnCount++;
+
         }
+
     }
 });
+
+
+EventBus.$on("goban:endPhase",function (payload) {
+    vm.turnCount++
+});
+

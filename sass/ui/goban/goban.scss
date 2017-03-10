@@ -54,11 +54,11 @@
     }
     &__top {
         .goban__markers {
-            padding-left: $markers-x-size + $slot-size/2;
+            padding-left: $markers-x-size + 2rem;
             padding-right: $slot-size/2;
             &--x {
                 display: flex;
-                justify-content: space-around;
+                justify-content: space-between;
                 align-items: center;
             }
         }
@@ -67,7 +67,6 @@
         display: flex;
         flex-wrap: wrap;
         align-items: flex-start;
-        overflow: hidden;
     }
     &__markers {
         display: flex;

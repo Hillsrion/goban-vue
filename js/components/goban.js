@@ -2,7 +2,9 @@
  * Created by Ismaël on 25/02/2017.
  */
 import Vue from "vue"
-export default Vue.component('goban',{
+import EventBus from "../controllers/EventBus"
+import RulesManager from "../controllers/RulesManager"
+const gobanComponent = Vue.component('goban',{
     template:
         `<div :class="classList">
             <slot></slot>
@@ -21,10 +23,25 @@ export default Vue.component('goban',{
             }
         }
     },
-    props: ['size'],
+    props: ['size','slots'],
     computed: {
         classList() {
             return [this.className,this.className+"--"+this.getSizeModifier()];
         }
     },
-})
+    methods: {
+        playPhase(slot) {
+            this.slots[slot.x+","+slot.y] = slot;
+            RulesManager.eval(this.slots);
+            EventBus.$emit("goban:endPhase");
+        }
+    },
+    created() {
+        // If I don't bind an anonymous function to the scope, it throws that payload is undefined
+        EventBus.$on("goban:playPhase", (function (payload) {
+            this.playPhase(payload)
+        }).bind(this));
+    }
+});
+
+export default gobanComponent
