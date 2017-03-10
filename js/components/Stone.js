@@ -4,24 +4,14 @@
 import Vue from "vue"
 export default Vue.component("stone",{
     template: "<div :class='classList'></div>",
-    props: {
-      color: {
-          required: true,
-          default: "black",
-          type: String
-      }
-    },
     data() {
         return {
-            className: "stone",
-            getModifier() {
-                return this.className+"--"+this.color;
-            }
+            className: "stone"
         }
     },
     computed: {
         classList() {
-            return [this.className,this.getModifier()]
+            return [this.className]
         }
     }
 })

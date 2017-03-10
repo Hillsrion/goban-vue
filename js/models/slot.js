@@ -3,10 +3,13 @@
  */
 
 export default class slotModel {
-    constructor(x,y,isFilled,time) {
-        this.x = x;
-        this.y = y;
-        this.isFilled = isFilled;
-        this.time = time
+    constructor(params) {
+        this.x = params.x;
+        this.y = params.y;
+        this.isFilled = params.isFilled;
+        // Default value set at true.
+        this.isFillable = params.isFillable || true;
+        this.time = params.time;
+        this.belongsTo = params.belongsTo || null;
     }
 }

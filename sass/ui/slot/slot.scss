@@ -35,6 +35,11 @@
     }
     &__shadow {
         @extend .stone;
-        background-color: transparentize(black, 0.4);
+        &--black {
+            background-color: transparentize(black, 0.4);
+        }
+        &--white {
+            background-color: transparentize(white, 0.4);
+        }
     }
 }

@@ -39,8 +39,8 @@ const gobanComponent = Vue.component('goban',{
              * The modified goban on the data will flow down on this and update the goban
              */
             this.slots[slot.x+","+slot.y] = slot;
-            RulesManager.eval(this.slots);
-            EventBus.$emit("goban:endPhase");
+            const payload = RulesManager.eval(this.slots);
+            EventBus.$emit("goban:endPhase",payload);
         }
     },
     created() {

@@ -17,6 +17,9 @@ const vm = new Vue({
             x: "x",
             y: "y"
         },
+        self: "black",
+        opponent: "white",
+        currentPlayer: null,
         turnCount: 1
     },
     computed: {
@@ -27,7 +30,13 @@ const vm = new Vue({
                 return this.createSlotsPosition();
             }
             return this.gobanSlots
-        }
+        },
+        getCurrentPlayer() {
+            if(this.currentPlayer==null) {
+                this.currentPlayer = this.self
+            }
+            return this.currentPlayer
+        },
     },
     methods: {
         createSlotsPosition() {
@@ -35,25 +44,40 @@ const vm = new Vue({
             let size = this.size;
             for(let y = 1; y <= size;y++) {
                 for(let x = 1 ;x <= size; x++) {
-                    let model = new slotModel(x,y,false,null);
+                    const params = {
+                        x:x,
+                        y:y,
+                        isFilled:false,
+                        isFillable:true,
+                        time: null,
+                        owner: null
+                    };
+                    let model = new slotModel(params);
                     let key = x+","+y;
                     map[key] = model;
                 }
             }
             return map;
         },
-        endTurn(payload) {
-            //const slot = payload.slot;
-            //this.goban[slot.x+","+slot.y] = slot;
+        changePlayer() {
+            console.log('changed player');
+            if(this.currentPlayer=="black") {
+                this.currentPlayer = "white"
+            } else if(this.currentPlayer == "white") {
+                this.currentPlayer = "black"
+            } else {
+                console.warn("currentPlayer is neither black or white, equals to "+this.currentPlayer);
+            }
+        },
+        endTurn(goban) {
             this.turnCount++;
-
+            this.gobanSlots = goban;
+            this.changePlayer();
         }
 
     }
 });
 
 
-EventBus.$on("goban:endPhase",function (payload) {
-    vm.turnCount++
-});
+EventBus.$on("goban:endPhase",vm.endTurn.bind(this,goban));
 

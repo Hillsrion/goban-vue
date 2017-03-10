@@ -15,36 +15,69 @@ export default Vue.component('gobanSlot',{
         return {
             className: "slot",
             isFilled: false,
-            isUsable: true,
             hasShadow: false,
-            time: null
+            time: null,
+            isFillable: this.fillable,
+            belongsTo: this.owner
+
         }
     },
     props: {
         x: Number,
-        y: Number
+        y: Number,
+        fillable: {
+            type: Boolean,
+            required: true,
+            default: true
+        },
+        owner: String,
+        "current-player": String
     },
     computed: {
         classList() {
             let modifier = this.isFilled ? 'is-filled' : '';
-            return [this.className,modifier]
+            let user;
+            if(this.belongsTo && this.belongsTo!==null) {
+                // Getting the state class in camelCase.
+                user = "user"+this.belongsTo.substring(0,1).toUpperCase()+this.belongsTo.substring(1);
+            } else if(!this.isFilled) {
+                user = "is-free"
+            }
+            return [this.className,modifier,user]
         },
         shadowClasses() {
-            return [this.className+"__shadow"]
+            let modifier;
+            let elClass = this.className+"__shadow";
+            if(this.currentPlayer=="black") {
+                modifier = elClass+"--black";
+            } else if(this.currentPlayer=="white") {
+                modifier = elClass+"--white";
+            }
+            return [elClass,modifier]
         },
         shouldDisplayStone() {
             return this.isFilled
         },
         shouldDisplayShadow() {
-            return this.hasShadow && !this.isFilled
+            return this.hasShadow && !this.isFilled && this.isFillable
         }
     },
     methods: {
         onClick() {
-            if(!this.isFilled && RulesManager.canSetStone(this.position)) {
+            if(!this.isFilled && RulesManager.canSetStone({x:this.x,y:this.y})) {
+                if(!this.belongsTo) {
+                    this.belongsTo = this.currentPlayer;
+                }
                 this.isFilled = true;
+                this.isFillable = false;
                 this.time = new Date();
-                const payload = new slotModel(this.x,this.y,this.isFilled,this.time);
+                const params = {
+                    x: this.x,
+                    y: this.y,
+                    isFilled: this.isFilled,
+                    owner: this.belongsTo
+                };
+                const payload = new slotModel(params);
                 EventBus.$emit("goban:playPhase",payload);
             } else {
                 console.log("There's already a stone")

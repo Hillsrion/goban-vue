@@ -29,6 +29,7 @@ class RulesManager {
      * @returns {boolean}
      */
     canSetStone(position) {
+        return true;
         if(!this.isAtari(position) || this.isKo(position)) {
             return true;
         } else {
@@ -40,7 +41,7 @@ class RulesManager {
         return false;
     }
     _isKo(position) {
-        return false;
+        return true;
     }
     getConnectedArea() {
 

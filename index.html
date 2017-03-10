@@ -14,9 +14,15 @@
             <div class="goban__bottom">
                 <goban-markers :count="size" :side="markersSide.y"></goban-markers>
                 <div class="goban__field">
-                    <goban-slot v-for='slot in getGobanSlots' :x="slot.x" :y="slot.y">
+                    <goban-slot
+                            v-for='slot in getGobanSlots'
+                            :x="slot.x"
+                            :y="slot.y"
+                            :fillable="slot.fillable"
+                            :owner="slot.owner"
+                            :current-player="getCurrentPlayer">
                         <div slot="stone-wrapper">
-                            <stone :color="colorPlayer"></stone>
+                            <stone></stone>
                         </div>
                     </goban-slot>
                 </div>
