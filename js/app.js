@@ -50,7 +50,7 @@ const vm = new Vue({
                         isFilled:false,
                         isFillable:true,
                         time: null,
-                        owner: null
+                        belongsTo: null
                     };
                     let model = new slotModel(params);
                     let key = x+","+y;

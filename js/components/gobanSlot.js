@@ -71,11 +71,14 @@ export default Vue.component('gobanSlot',{
                 this.isFilled = true;
                 this.isFillable = false;
                 this.time = new Date();
+                console.log(this.isFillable);
                 const params = {
                     x: this.x,
                     y: this.y,
                     isFilled: this.isFilled,
-                    owner: this.belongsTo
+                    isFillable: this.isFillable,
+                    belongsTo: this.belongsTo,
+                    time: new Date()
                 };
                 const payload = new slotModel(params);
                 EventBus.$emit("goban:playPhase",payload);

@@ -9,6 +9,7 @@ class RulesManager {
     eval(goban) {
         if(goban) {
             this.currentGoban = goban;
+            console.log(this.currentGoban);
             return {
                 atariList: this.getAtariList(),
                 takenList: this.getTakenStoneList()
@@ -18,8 +19,6 @@ class RulesManager {
         }
     }
     getAtariList() {
-        console.log('getAtari');
-        console.log(this.currentGoban);
     }
 
     /**
@@ -47,7 +46,6 @@ class RulesManager {
 
     }
     getTakenStoneList() {
-        console.log('getTakenStoneList');
     }
 
 }
