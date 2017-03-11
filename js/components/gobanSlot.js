@@ -71,13 +71,13 @@ export default Vue.component('gobanSlot',{
                 this.isFilled = true;
                 this.isFillable = false;
                 this.time = new Date();
-                console.log(this.isFillable);
                 const params = {
                     x: this.x,
                     y: this.y,
                     isFilled: this.isFilled,
                     isFillable: this.isFillable,
                     belongsTo: this.belongsTo,
+                    lastUsed: true,
                     time: new Date()
                 };
                 const payload = new slotModel(params);

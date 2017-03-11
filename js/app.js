@@ -50,7 +50,8 @@ const vm = new Vue({
                         isFilled:false,
                         isFillable:true,
                         time: null,
-                        belongsTo: null
+                        belongsTo: null,
+                        lastUsed: false
                     };
                     let model = new slotModel(params);
                     let key = x+","+y;
@@ -60,7 +61,7 @@ const vm = new Vue({
             return map;
         },
         changePlayer() {
-            console.log('changed player');
+            // console.log('changed player');
             if(this.currentPlayer=="black") {
                 this.currentPlayer = "white"
             } else if(this.currentPlayer == "white") {
