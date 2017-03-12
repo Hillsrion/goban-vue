@@ -79,6 +79,8 @@ const vm = new Vue({
     }
 });
 
-
-EventBus.$on("goban:endPhase",vm.endTurn.bind(this,goban));
+// Can't bind this here. Otherwise I get a Vue component function in payload parameter.
+EventBus.$on("goban:endPhase",(function (payload) {
+    this.endTurn(payload)
+}).bind(vm));
 

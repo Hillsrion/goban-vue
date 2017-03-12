@@ -14,7 +14,7 @@ export default Vue.component('gobanSlot',{
     data() {
         return {
             className: "slot",
-            isFilled: false,
+            isFilled: this.basefill,
             hasShadow: false,
             time: null,
             isFillable: this.fillable,
@@ -31,19 +31,23 @@ export default Vue.component('gobanSlot',{
             default: true
         },
         owner: String,
-        "current-player": String
+        "current-player": String,
+        basefill: Boolean
     },
     computed: {
         classList() {
-            let modifier = this.isFilled ? 'is-filled' : '';
+            let modifier = this.basefill ? 'is-filled' : '';
             let user;
             if(this.belongsTo && this.belongsTo!==null) {
                 // Getting the state class in camelCase.
                 user = "user"+this.belongsTo.substring(0,1).toUpperCase()+this.belongsTo.substring(1);
-            } else if(!this.isFilled) {
+            } else if(!this.basefill) {
                 user = "is-free"
             }
             return [this.className,modifier,user]
+        },
+        getFill() {
+            return this.basefill;
         },
         shadowClasses() {
             let modifier;
@@ -56,10 +60,10 @@ export default Vue.component('gobanSlot',{
             return [elClass,modifier]
         },
         shouldDisplayStone() {
-            return this.isFilled
+            return this.basefill
         },
         shouldDisplayShadow() {
-            return this.hasShadow && !this.isFilled && this.isFillable
+            return this.hasShadow && !this.basefill && this.isFillable
         }
     },
     methods: {
@@ -68,13 +72,12 @@ export default Vue.component('gobanSlot',{
                 if(!this.belongsTo) {
                     this.belongsTo = this.currentPlayer;
                 }
-                this.isFilled = true;
                 this.isFillable = false;
                 this.time = new Date();
                 const params = {
                     x: this.x,
                     y: this.y,
-                    isFilled: this.isFilled,
+                    isFilled: true,
                     isFillable: this.isFillable,
                     belongsTo: this.belongsTo,
                     lastUsed: true,

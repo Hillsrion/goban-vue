@@ -20,7 +20,8 @@
                             :y="slot.y"
                             :fillable="slot.fillable"
                             :owner="slot.belongsTo"
-                            :current-player="getCurrentPlayer">
+                            :current-player="getCurrentPlayer"
+                            :basefill="slot.isFilled">
                         <div slot="stone-wrapper">
                             <stone></stone>
                         </div>

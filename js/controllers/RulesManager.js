@@ -5,7 +5,11 @@ import _ from "lodash"
 class RulesManager {
     constructor() {
         this.currentGoban = [];
-        this.dataTurn = {};
+        this.dataTurn = {
+            atariList: [],
+            deathList: [],
+            koList: []
+        };
     }
     eval(goban) {
         if(goban) {
@@ -13,12 +17,23 @@ class RulesManager {
             let slot;
             for(let key in this.currentGoban) {
                 slot = this.currentGoban[key];
-                console.log(slot);
                 if(this._isConnectedSlot(slot)) {
-                    // Log this for all slots
-                    console.log("slot is connected");
+                    // This is logged for all slots
+                    //console.log("slot is connected");
+                    if(slot.lastUsed) {
+                        console.log("slot is connected")
+                    }
                 } else {
-                    console.log("slot is not connected");
+                    // This is logged for all slots
+                    //console.log("slot is connected");
+                    if(slot.lastUsed) {
+                        console.log("slot is not connected")
+                    }
+                    if(slot.isFilled && this._isAtari(slot)) {
+                        this._putAtari(slot);
+                    } else if(slot.isFilled && this._isDead(slot)) {
+                        this._killSlot(slot);
+                    }
                 }
             }
             return this.currentGoban;
@@ -27,6 +42,19 @@ class RulesManager {
         }
     }
     getAtariList() {
+    }
+    _putAtari(slot) {
+        slot.isAtari = true;
+        console.log(`slot position ${slot.x},${slot.y} is in Atari`);
+        this.dataTurn.atariList.push(slot);
+    }
+    _killSlot(slot) {
+        slot.isFilled = false;
+        // isFillable is a data, fillable is the prop that flows into component's data.
+        slot.fillable = false;
+        slot.isAtari = false;
+        console.log(`slot position ${slot.x},${slot.y} is dead`);
+        this.dataTurn.deathList.push(slot);
     }
     _getAdjacentSlots(slot) {
         /**
@@ -52,7 +80,7 @@ class RulesManager {
     }
     _isConnectedSlot(slot) {
         const adjacentSlots = this._getAdjacentSlots(slot);
-        console.log(adjacentSlots);
+        // console.log(adjacentSlots);
         let sibling;
         for(let key in adjacentSlots) {
             sibling = adjacentSlots[key];
@@ -76,11 +104,54 @@ class RulesManager {
         }
     }
 
-    _isAtari(position) {
-        return false;
+    /**
+     * Tests if the stone is in atari state or not.
+     * @param slot
+     * @returns {boolean}
+     * @private
+     */
+    _isAtari(slot) {
+        const adjacentSlots = this._getAdjacentSlots(slot);
+        // console.log(adjacentSlots);
+        let sibling;
+        let i = 0;
+        /**
+         * We're gonna test if adjacents slots belong to the opponent.
+         * If 3 adjacents slots do, then the slot is in atari.
+         */
+        for(let key in adjacentSlots) {
+            sibling = adjacentSlots[key];
+            if(sibling && sibling.isFilled && sibling.belongsTo!==slot.belongsTo) {
+                i++;
+            }
+        }
+        return i==3
     }
     _isKo(position) {
         return true;
+    }
+    /**
+     * Tests if the stone is dead or not.
+     * @param slot
+     * @returns {boolean}
+     * @private
+     */
+    _isDead(slot) {
+        const adjacentSlots = this._getAdjacentSlots(slot);
+        // console.log(adjacentSlots);
+        let sibling;
+        let i = 0;
+        /**
+         * We're gonna test if adjacents slots belong to the opponent.
+         * If 4 adjacents slots do, then the slot is dead.
+         */
+        for(let key in adjacentSlots) {
+            sibling = adjacentSlots[key];
+            if(sibling && sibling.isFilled && sibling.belongsTo!==slot.belongsTo) {
+                i++;
+            }
+        }
+        return i==4
     }
     getConnectedArea() {
 
