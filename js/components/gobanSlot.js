@@ -14,7 +14,6 @@ export default Vue.component('gobanSlot',{
     data() {
         return {
             className: "slot",
-            isFilled: this.basefill,
             hasShadow: false,
             time: null,
             isFillable: this.fillable,
@@ -32,22 +31,22 @@ export default Vue.component('gobanSlot',{
         },
         owner: String,
         "current-player": String,
-        basefill: Boolean
+        filled: Boolean
     },
     computed: {
         classList() {
-            let modifier = this.basefill ? 'is-filled' : '';
+            let modifier = this.filled ? 'is-filled' : '';
             let user;
             if(this.belongsTo && this.belongsTo!==null) {
                 // Getting the state class in camelCase.
                 user = "user"+this.belongsTo.substring(0,1).toUpperCase()+this.belongsTo.substring(1);
-            } else if(!this.basefill) {
+            } else if(!this.filled) {
                 user = "is-free"
             }
             return [this.className,modifier,user]
         },
-        getFill() {
-            return this.basefill;
+        getFilled() {
+            return this.filled;
         },
         shadowClasses() {
             let modifier;
@@ -60,15 +59,15 @@ export default Vue.component('gobanSlot',{
             return [elClass,modifier]
         },
         shouldDisplayStone() {
-            return this.basefill
+            return this.filled
         },
         shouldDisplayShadow() {
-            return this.hasShadow && !this.basefill && this.isFillable
+            return this.hasShadow && !this.filled && this.isFillable
         }
     },
     methods: {
         onClick() {
-            if(!this.isFilled && RulesManager.canSetStone({x:this.x,y:this.y})) {
+            if(!this.isFilled && this.isFillable) {
                 if(!this.belongsTo) {
                     this.belongsTo = this.currentPlayer;
                 }
