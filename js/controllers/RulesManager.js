@@ -31,7 +31,7 @@ class RulesManager {
                     }
                     if(slot.isFilled && this._isAtari(slot)) {
                         this._putAtari(slot);
-                    } else if(slot.isFilled && this._isDead(slot)) {
+                    } else if(slot.isFilled && this._isDeadKilledBy(slot)) {
                         this._killSlot(slot);
                     }
                 }
@@ -50,8 +50,7 @@ class RulesManager {
     }
     _killSlot(slot) {
         slot.isFilled = false;
-        // isFillable is a data, fillable is the prop that flows into component's data.
-        slot.fillable = false;
+        slot.isFillableBy = this.lastKilledBy;
         slot.isAtari = false;
         console.log(`slot position ${slot.x},${slot.y} is dead`);
         this.dataTurn.deathList.push(slot);
@@ -89,20 +88,6 @@ class RulesManager {
             }
         }
     }
-    /**
-     * Allows to know if we can set the stone at the position given in params
-     * if the stone is not in atari or is in ko situation
-     * @param {string} position
-     * @returns {boolean}
-     */
-    canSetStone(position) {
-        return true;
-        if(!this.isAtari(position) || this.isKo(position)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     /**
      * Tests if the stone is in atari state or not.
@@ -131,16 +116,18 @@ class RulesManager {
         return true;
     }
     /**
-     * Tests if the stone is dead or not.
+     * Tests if the stone is dead or not and returns the opponent color.
      * @param slot
      * @returns {boolean}
      * @private
      */
-    _isDead(slot) {
+    _isDeadKilledBy(slot) {
         const adjacentSlots = this._getAdjacentSlots(slot);
+        this.lastKilledBy = "";
         // console.log(adjacentSlots);
         let sibling;
         let i = 0;
+        let killedBy = false;
         /**
          * We're gonna test if adjacents slots belong to the opponent.
          * If 4 adjacents slots do, then the slot is dead.
@@ -150,8 +137,12 @@ class RulesManager {
             if(sibling && sibling.isFilled && sibling.belongsTo!==slot.belongsTo) {
                 i++;
             }
+            if(i==4) {
+                killedBy = sibling.belongsTo;
+                this.lastKilledBy = killedBy
+            }
         }
-        return i==4
+        return killedBy;
     }
     getConnectedArea() {
 

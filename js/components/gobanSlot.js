@@ -15,38 +15,36 @@ export default Vue.component('gobanSlot',{
         return {
             className: "slot",
             hasShadow: false,
-            time: null,
-            isFillable: this.fillable,
-            belongsTo: this.owner
-
+            time: null
         }
     },
     props: {
         x: Number,
         y: Number,
-        fillable: {
-            type: Boolean,
+        isFillableBy: {
+            type: String,
             required: true,
-            default: true
+            default: null
         },
-        owner: String,
-        "current-player": String,
-        filled: Boolean
+        belongsTo: String,
+        currentPlayer: String,
+        isFilled: Boolean
     },
     computed: {
         classList() {
-            let modifier = this.filled ? 'is-filled' : '';
+            let modifier = this.isFilled ? 'is-filled' : '';
+            let isFree = this.belongsTo && this.belongsTo!==null && this.isFillableBy!==this.currentPlayer;
             let user;
-            if(this.belongsTo && this.belongsTo!==null) {
+            if(isFree) {
                 // Getting the state class in camelCase.
                 user = "user"+this.belongsTo.substring(0,1).toUpperCase()+this.belongsTo.substring(1);
-            } else if(!this.filled) {
+            } else if(!this.isFilled) {
                 user = "is-free"
             }
             return [this.className,modifier,user]
         },
         getFilled() {
-            return this.filled;
+            return this.isFilled;
         },
         shadowClasses() {
             let modifier;
@@ -59,26 +57,24 @@ export default Vue.component('gobanSlot',{
             return [elClass,modifier]
         },
         shouldDisplayStone() {
-            return this.filled
+            return this.isFilled
         },
         shouldDisplayShadow() {
-            return this.hasShadow && !this.filled && this.isFillable
+            return this.hasShadow && this.isFillableByCurrentPlayer();
         }
     },
     methods: {
+        isFillableByCurrentPlayer() {
+            return !this.isFilled && (this.isFillableBy==this.currentPlayer || !this.isFillableBy);
+        },
         onClick() {
-            if(!this.isFilled && this.isFillable) {
-                if(!this.belongsTo) {
-                    this.belongsTo = this.currentPlayer;
-                }
-                this.isFillable = false;
-                this.time = new Date();
+            if(this.isFillableByCurrentPlayer()) {
                 const params = {
                     x: this.x,
                     y: this.y,
                     isFilled: true,
-                    isFillable: this.isFillable,
-                    belongsTo: this.belongsTo,
+                    isFillableBy: "",
+                    belongsTo: this.currentPlayer,
                     lastUsed: true,
                     time: new Date()
                 };

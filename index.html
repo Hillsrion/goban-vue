@@ -18,10 +18,10 @@
                             v-for='slot in getGobanSlots'
                             :x="slot.x"
                             :y="slot.y"
-                            :fillable="slot.fillable"
-                            :owner="slot.belongsTo"
+                            :is-fillable-by="slot.isFillableBy"
+                            :belongs-to="slot.belongsTo"
                             :current-player="getCurrentPlayer"
-                            :filled="slot.isFilled">
+                            :is-filled="slot.isFilled">
                         <div slot="stone-wrapper">
                             <stone></stone>
                         </div>

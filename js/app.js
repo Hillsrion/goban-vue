@@ -48,7 +48,7 @@ const vm = new Vue({
                         x:x,
                         y:y,
                         isFilled:false,
-                        isFillable:true,
+                        isFillableBy: "",
                         time: null,
                         belongsTo: null,
                         lastUsed: false

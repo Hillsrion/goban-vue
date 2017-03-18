@@ -7,7 +7,7 @@ export default class slotModel {
         this.x = params.x;
         this.y = params.y;
         this.isFilled = params.isFilled;
-        this.isFillable = params.isFillable;
+        this.isFillableBy = params.isFillableBy;
         this.time = params.time;
         this.belongsTo = params.belongsTo || null;
         this.lastUsed = params.lastUsed;
