@@ -210,7 +210,7 @@ class RulesManager {
         return killedBy;
     }
     _getEyesAround(slot) {
-        let sideEyes = (side) => {
+        let sideEye = (side) => {
             let goban = this.currentGoban;
             let firstSibling,secondSibling,thirdSibling;
             if(side=="left") {
@@ -235,12 +235,8 @@ class RulesManager {
                 let response;
                 if(!currentSlot) {
                     response = true;
-                } else if(currentSlot && currentSlot.isFilled && currentSlot.belongsTo==reference) {
-                    response = true;
-                } else if(currentSlot && currentSlot.isFilled && currentSlot.belongsTo!==reference) {
-                    response = false;
                 } else {
-                    response = false;
+                    response = !!(currentSlot && currentSlot.isFilled && currentSlot.belongsTo == reference);
                 }
                 return response;
             });
@@ -257,10 +253,10 @@ class RulesManager {
             top: false,
             bottom: false
         };
-        for(let key in sides) {
-            let eye = sideEyes(key);
+        for(let side in sides) {
+            let eye = sideEye(side);
             if(eye) {
-                sides[key] = eye;
+                sides[side] = eye;
             }
         }
         return sides;
