@@ -8,7 +8,8 @@ class RulesManager {
         this.dataTurn = {
             atariList: [],
             deathList: [],
-            koList: []
+            koList: [],
+            potentialKoList: []
         };
     }
 
@@ -34,6 +35,9 @@ class RulesManager {
                         this._putAtari(slot);
                     } else if (slot.isFilled && this._isDeadKilledBy(slot)) {
                         this._killSingleSlot(slot);
+                    }
+                    if(slot.isFilled && this._hasKoOpportunity(slot)) {
+                        this.dataTurn.potentialKoList.push(this.lastKoOpportunity);
                     }
                     if (!slot.isFilled && this._isUnfillableByOpponent(slot)) {
                         slot.isFillableBy = this.lastReference;
@@ -204,6 +208,65 @@ class RulesManager {
             }
         }
         return killedBy;
+    }
+    _getEyesAround(slot) {
+        let sideEyes = (side) => {
+            let goban = this.currentGoban;
+            let firstSibling,secondSibling,thirdSibling;
+            if(side=="left") {
+                firstSibling = goban[(slot.x-1)+","+(slot.y-1)];
+                secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
+                thirdSibling = goban[(slot.x-2)+","+slot.y];
+            } else if(side=="right") {
+                firstSibling = goban[(slot.x+1)+","+(slot.y-1)];
+                secondSibling = goban[(slot.x+1)+","+(slot.y+1)];
+                thirdSibling = goban[(slot.x+2)+","+(slot.y)];
+            } else if(side=="top") {
+                firstSibling = goban[(slot.x+1)+","+(slot.y-1)];
+                secondSibling = goban[(slot.x-1)+","+(slot.y-1)];
+                thirdSibling = goban[(slot.x)+","+(slot.y-2)];
+            } else if(side=="bottom") {
+                firstSibling = goban[(slot.x+1)+","+(slot.y+1)];
+                secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
+                thirdSibling = goban[(slot.x)+","+(slot.y+2)];
+            }
+            let reference = slot.belongsTo;
+            let isSlotHaveSiblings = [firstSibling,secondSibling,thirdSibling].every((currentSlot)=> {
+                let response;
+                if(!currentSlot) {
+                    response = true;
+                } else if(currentSlot && currentSlot.isFilled && currentSlot.belongsTo==reference) {
+                    response = true;
+                } else if(currentSlot && currentSlot.isFilled && currentSlot.belongsTo!==reference) {
+                    response = false;
+                } else {
+                    response = false;
+                }
+                return response;
+            });
+            if(isSlotHaveSiblings) {
+                //console.log([slot,firstSibling,secondSibling,thirdSibling]);
+                return [slot,firstSibling,secondSibling,thirdSibling];
+            } else {
+                return false;
+            }
+        };
+        const sides = {
+            left: false,
+            right: false,
+            top: false,
+            bottom: false
+        };
+        for(let key in sides) {
+            let eye = sideEyes(key);
+            if(eye) {
+                sides[key] = eye;
+            }
+        }
+        return sides;
+    }
+    _hasKoOpportunity(slot) {
+        console.log(this._getEyesAround(slot));
     }
 }
 
