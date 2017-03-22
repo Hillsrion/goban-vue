@@ -1,17 +1,15 @@
 /**
  * Created by Ismaël on 06/03/2017.
  */
-
+import _ from "lodash"
 class RulesManager {
     constructor() {
         this.currentGoban = [];
         this.dataTurn = {
             atariList: [],
             deathList: [],
-            koList: [],
-            koOpportunity: []
+            koList: []
         };
-        this.cachedResults = new Map();
     }
 
     eval(goban) {
@@ -37,11 +35,8 @@ class RulesManager {
                     } else if (slot.isFilled && this._isDeadKilledBy(slot)) {
                         this._killSingleSlot(slot);
                     }
-                    if(slot.isFilled && this._hasKoOpportunity(slot)) {
-                        this.dataTurn.koOpportunity.push(slot);
-                    }
                     if (!slot.isFilled && this._isUnfillableByOpponent(slot)) {
-                        slot.isFillableBy = this.cachedResults.get("lastReference");
+                        slot.isFillableBy = this.lastReference;
                     }
                 }
             }
@@ -65,7 +60,7 @@ class RulesManager {
          * Here we're gonna reset the slot state so it can be refilled if possible.
          */
         slot.isFilled = false;
-        slot.isFillableBy = this.cachedResults.get("lastKilledBy");
+        slot.isFillableBy = this.lastKilledBy;
         slot.isAtari = false;
         slot.belongsTo = "";
         console.log(`slot position ${slot.x},${slot.y} is dead`);
@@ -129,7 +124,7 @@ class RulesManager {
                 owners.colors.push(sibling.belongsTo);
                 if(!owners.reference) {
                     owners.reference = sibling.belongsTo;
-                    this.cachedResults('lastReference',sibling.belongsTo)
+                    this.lastReference = sibling.belongsTo;
                 }
             } else if(!sibling) {
                 owners.colors.push("");
@@ -186,6 +181,7 @@ class RulesManager {
      */
     _isDeadKilledBy(slot) {
         const adjacentSlots = this._getAdjacentSlots(slot);
+        this.lastKilledBy = "";
         // console.log(adjacentSlots);
         let sibling;
         let i = 0;
@@ -203,15 +199,11 @@ class RulesManager {
                 i++;
             }
             if (i == 4) {
-                this.cachedResults.set("lastKilledBy",sibling.belongsTo);
+                killedBy = sibling.belongsTo;
+                this.lastKilledBy = killedBy
             }
         }
         return killedBy;
-    }
-
-    _hasKoOpportunity(slot) {
-        const adjacentSlots = this._getAdjacentSlots(slot);
-
     }
 }
 
