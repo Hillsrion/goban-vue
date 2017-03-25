@@ -1,7 +1,7 @@
 /**
  * Created by Ismaël on 06/03/2017.
  */
-import _ from "lodash"
+import EyeModel from "../models/eye"
 class RulesManager {
     constructor() {
         this.currentGoban = [];
@@ -9,7 +9,8 @@ class RulesManager {
             atariList: [],
             deathList: [],
             koList: [],
-            potentialKoList: []
+            potentialKoList: [],
+            eyes: []
         };
     }
 
@@ -209,6 +210,35 @@ class RulesManager {
         }
         return killedBy;
     }
+
+    /**
+     *
+     * @param {Array} slots : An array of slotModels
+     * @param {slotModel} referenceSlot The reference slot. We'll compare the others slots to know if they belong to the same player
+     * @returns {boolean|*}
+     * @private
+     */
+    _isEye(slots,referenceSlot) {
+        let reference = referenceSlot.belongsTo;
+        let isEye = slots.every((currentSlot)=> {
+            let response;
+            if(!currentSlot) {
+                response = true;
+            } else {
+                response = !!(currentSlot && currentSlot.isFilled && currentSlot.belongsTo == reference);
+            }
+            return response;
+        });
+        return isEye;
+    }
+
+    /**
+     * Returns object composed of EyeModel
+     * if the slot given in parameter is a part of an eye in relation to a side of an eye (on the left, right..)
+     * the side property (again, left, right...) will be a EyeModel composed of slotModel objects
+     * @param slot
+     * @private
+     */
     _getEyesAround(slot) {
         let sideEye = (side) => {
             let goban = this.currentGoban;
@@ -230,19 +260,8 @@ class RulesManager {
                 secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
                 thirdSibling = goban[(slot.x)+","+(slot.y+2)];
             }
-            let reference = slot.belongsTo;
-            let isSlotHaveSiblings = [firstSibling,secondSibling,thirdSibling].every((currentSlot)=> {
-                let response;
-                if(!currentSlot) {
-                    response = true;
-                } else {
-                    response = !!(currentSlot && currentSlot.isFilled && currentSlot.belongsTo == reference);
-                }
-                return response;
-            });
-            if(isSlotHaveSiblings) {
-                //console.log([slot,firstSibling,secondSibling,thirdSibling]);
-                return [slot,firstSibling,secondSibling,thirdSibling];
+            if(this._isEye([firstSibling,secondSibling,thirdSibling],slot)) {
+                return new EyeModel([slot,firstSibling,secondSibling,thirdSibling]);
             } else {
                 return false;
             }
@@ -262,7 +281,35 @@ class RulesManager {
         return sides;
     }
     _hasKoOpportunity(slot) {
-        console.log(this._getEyesAround(slot));
+        let eyes = this._getEyesAround(slot);
+        for(let key in eyes) {
+            let eye = eyes[key];
+            if(eye && !this._isCheckedEye(eye)) {
+                console.log("New eye");
+                for(let key in eye) {
+                    let slot = eye[slot];
+                }
+                this.dataTurn.eyes.push(eye);
+            } else if(eye && this._isCheckedEye(eye)) {
+                console.log("I already have this eye stored.")
+            }
+        }
+    }
+
+    /**
+     * Allows to check if we have a stored EyeModel with the same id of the one given in parameter
+     * @param eye {EyeModel}
+     * @returns {boolean}
+     * @private
+     */
+    _isCheckedEye(eye) {
+        let checked = false;
+        this.dataTurn.eyes.forEach((storedEye) => {
+            if(storedEye.id==eye.id) {
+                checked = true;
+            }
+        });
+        return checked
     }
 }
 
