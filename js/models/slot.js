@@ -12,5 +12,6 @@ export default class SlotModel {
         this.belongsTo = params.belongsTo || null;
         this.lastUsed = params.lastUsed;
         this.isAtari = params.isAtari || false;
+        this.hasKoOpportunity = params.hasKoOpportunity || false;
     }
 }

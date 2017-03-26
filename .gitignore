@@ -2,4 +2,5 @@ node_modules
 js/build
 css
 .idea
+.vscode
 todo.md

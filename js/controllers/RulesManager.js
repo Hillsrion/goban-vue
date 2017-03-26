@@ -39,6 +39,7 @@ class RulesManager {
                     }
                     if(slot.isFilled && this._hasKoOpportunity(slot)) {
                         this.dataTurn.potentialKoList.push(this.lastKoOpportunity);
+                        console.log(this.dataTurn.potentialKoList);
                     }
                     if (!slot.isFilled && this._isUnfillableByOpponent(slot)) {
                         slot.isFillableBy = this.lastReference;
@@ -282,15 +283,22 @@ class RulesManager {
     }
     _hasKoOpportunity(slot) {
         let eyes = this._getEyesAround(slot);
+        let returned;
         for(let key in eyes) {
-            let eye = eyes[key];
-            if(eye && !this._isCheckedEye(eye)) {
+            let eyeModel = eyes[key];
+            if(eyeModel && !this._isCheckedEye(eyeModel)) {
                 console.log("New eye");
-                for(let key in eye) {
-                    let slot = eye[slot];
+                for(let i = 0; i < eyeModel.eye.length; i++) {
+                    let currentSlot = eyeModel.eye[i];
+                    if(this._isAtari(currentSlot)) {
+                        // console.log(currentSlot);
+                        this.lastKoOpportunity = this.currentGoban[eyeModel.centerCoords.x+","+eyeModel.centerCoords.y];
+                        returned = true;
+                    }
                 }
-                this.dataTurn.eyes.push(eye);
-            } else if(eye && this._isCheckedEye(eye)) {
+                this.dataTurn.eyes.push(eyeModel);
+                return returned;
+            } else if(eyeModel && this._isCheckedEye(eyeModel)) {
                 console.log("I already have this eye stored.")
             }
         }
@@ -309,6 +317,7 @@ class RulesManager {
                 checked = true;
             }
         });
+        // console.log(eye,this.dataTurn.eyes);
         return checked
     }
 }
