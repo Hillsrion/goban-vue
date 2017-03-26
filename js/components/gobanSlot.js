@@ -4,7 +4,7 @@
 import Vue from "vue"
 import EventBus from "../controllers/EventBus"
 import RulesManager from "../controllers/RulesManager"
-import slotModel from "../models/slot"
+import SlotModel from "../models/slot"
 export default Vue.component('gobanSlot',{
     template:
         `<div @click='onClick' @mouseover='onMouseOver' @mouseleave="onMouseLeave" :class='classList'>
@@ -78,7 +78,7 @@ export default Vue.component('gobanSlot',{
                     lastUsed: true,
                     time: new Date()
                 };
-                const payload = new slotModel(params);
+                const payload = new SlotModel(params);
                 EventBus.$emit("goban:playPhase",payload);
             } else {
                 console.log("There's already a stone")

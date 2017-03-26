@@ -85,7 +85,7 @@ class RulesManager {
          * I parse x and y as int, and make the calculations aside
          * because it can be interpreted as a concatenation
          * 1 + 1 can result as 11 instead of 2
-         * @type {{x1: {slotModel}, x2: {slotModel}, y1: {slotModel}, y2: {slotModel}}}
+         * @type {{x1: {SlotModel}, x2: {SlotModel}, y1: {SlotModel}, y2: {SlotModel}}}
          */
         const adjacentSlots = {
             x1: goban[(x - 1) + "," + y],
@@ -213,8 +213,8 @@ class RulesManager {
 
     /**
      *
-     * @param {Array} slots : An array of slotModels
-     * @param {slotModel} referenceSlot The reference slot. We'll compare the others slots to know if they belong to the same player
+     * @param {Array} slots : An array of {SlotModel]
+     * @param {SlotModel} referenceSlot The reference slot. We'll compare the others slots to know if they belong to the same player
      * @returns {boolean|*}
      * @private
      */
@@ -235,7 +235,7 @@ class RulesManager {
     /**
      * Returns object composed of EyeModel
      * if the slot given in parameter is a part of an eye in relation to a side of an eye (on the left, right..)
-     * the side property (again, left, right...) will be a EyeModel composed of slotModel objects
+     * the side property (again, left, right...) will be a EyeModel composed of SlotModel objects
      * @param slot
      * @private
      */

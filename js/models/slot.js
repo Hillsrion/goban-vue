@@ -2,7 +2,7 @@
  * Created by Ismaël on 09/03/2017.
  */
 
-export default class slotModel {
+export default class SlotModel {
     constructor(params) {
         this.x = params.x;
         this.y = params.y;
