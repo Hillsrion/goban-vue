@@ -5,16 +5,24 @@ import EyeModel from "../models/eye"
 class RulesManager {
     constructor() {
         this.currentGoban = [];
-        this.dataTurn = {
+        this.dataTurn = this.getDefaultDataturn();
+        this.turnCount = 1;
+        this.history = {};
+    }
+    getDefaultDataturn() {
+        return {
             atariList: [],
             deathList: [],
             koList: [],
             potentialKoList: [],
-            eyes: []
+            eyes: [],
         };
     }
-
-    eval(goban) {
+    eval(goban,turnCount) {
+        this.dataTurn = this.getDefaultDataturn();
+        this.turnCount = turnCount;
+        this.lastKoOpportunity = null;
+        this._createTurnHistory();
         if (goban) {
             this.currentGoban = goban;
             let slot;
@@ -32,27 +40,43 @@ class RulesManager {
                     if (slot.lastUsed) {
                         // console.log("slot is not connected")
                     }
-                    if (slot.isFilled && this._isAtari(slot)) {
-                        this._putAtari(slot);
-                    } else if (slot.isFilled && this._isDeadKilledBy(slot)) {
-                        this._killSingleSlot(slot);
-                    }
-                    if(slot.isFilled && this._hasKoOpportunity(slot)) {
-                        this.dataTurn.potentialKoList.push(this.lastKoOpportunity);
-                        console.log(this.dataTurn.potentialKoList);
-                    }
-                    if (!slot.isFilled && this._isUnfillableByOpponent(slot)) {
-                        slot.isFillableBy = this.lastReference;
+                    if(slot.isFilled) {
+                        /**
+                         * Important : Let this _hasKoOpportunity execute first.
+                         * If we don't, a ko  which should kill a stone can fail because
+                         * the stone is already surrounded by 4 opponent stone.
+                         * So the ko doesn't work
+                         */
+                        if(this._hasKoOpportunity(slot)) {
+                            this.dataTurn.potentialKoList.push(this.lastKoOpportunity);
+                            this.lastKoOpportunity.hasKoOpportunity = true;
+                        }
+                        if (this._isAtari(slot)) {
+                            this._putAtari(slot);
+                        } else if (!slot.hasKoOpportunity && this._isDeadKilledBy(slot)) {
+                            this._killSingleSlot(slot);
+                            this._initKoStrike(slot);
+                            // this.dataTurn.koList.push(slot);
+                        }
+                    } else {
+                        if (this._isUnfillableByOpponent(slot)) {
+                            slot.isFillableBy = this.lastReference;
+                        }
                     }
                 }
             }
             return this.currentGoban;
         } else {
-            console.warn("goban given in param is null");
+            console.warn("goban given in param is not valid.");
+            console.log(goban);
         }
     }
     _getConnectedArea() {
 
+    }
+    _createTurnHistory() {
+        this.history[this.turnCount] = {};
+        this.history[this.turnCount].isUsableForStrikeKo = [];
     }
     _putAtari(slot) {
         slot.isAtari = true;
@@ -60,15 +84,16 @@ class RulesManager {
         this.dataTurn.atariList.push(slot);
     }
 
+    /**
+     * Kills the stone
+     * @param slot {SlotModel}
+     * @private
+     */
     _killSingleSlot(slot) {
         /**
-         *
          * Here we're gonna reset the slot state so it can be refilled if possible.
          */
-        slot.isFilled = false;
-        slot.isFillableBy = this.lastKilledBy;
-        slot.isAtari = false;
-        slot.belongsTo = "";
+        slot.killReset(this.lastKilledBy);
         console.log(`slot position ${slot.x},${slot.y} is dead`);
         this.dataTurn.deathList.push(slot);
     }
@@ -79,8 +104,8 @@ class RulesManager {
          *  x1 and y1 might are undefined because the slot after simply doesn't exist.
          *  Be careful to test if properties exist when you use this function.
          */
-        const x = parseInt(slot.x);
-        const y = parseInt(slot.y);
+        const x = slot ? parseInt(slot.x) : null;
+        const y = slot ? parseInt(slot.y) : null;
         let goban = this.currentGoban;
         /**
          * I parse x and y as int, and make the calculations aside
@@ -221,16 +246,23 @@ class RulesManager {
      */
     _isEye(slots,referenceSlot) {
         let reference = referenceSlot.belongsTo;
-        let isEye = slots.every((currentSlot)=> {
+        let i = 0;
+        // We want at least 2 slots
+        slots.forEach(function(slot) {
+            if(slot && slot.isFilled) {
+                i++;
+            }
+        });
+        let isEye = slots.every((slot)=> {
             let response;
-            if(!currentSlot) {
+            if(!slot) {
                 response = true;
             } else {
-                response = !!(currentSlot && currentSlot.isFilled && currentSlot.belongsTo == reference);
+                response = !!(slot && slot.isFilled && slot.belongsTo == reference);
             }
             return response;
         });
-        return isEye;
+        return isEye && i>=3;
     }
 
     /**
@@ -290,7 +322,8 @@ class RulesManager {
                 console.log("New eye");
                 for(let i = 0; i < eyeModel.eye.length; i++) {
                     let currentSlot = eyeModel.eye[i];
-                    if(this._isAtari(currentSlot)) {
+                    // This is ko. Stone is in atari and is not usable for a ko strike
+                    if(this._isAtari(currentSlot) && (currentSlot.isUsableForStrikeKo>=this.turnCount-2 || currentSlot.isUsableForStrikeKo==0)) {
                         // console.log(currentSlot);
                         this.lastKoOpportunity = this.currentGoban[eyeModel.centerCoords.x+","+eyeModel.centerCoords.y];
                         returned = true;
@@ -317,8 +350,19 @@ class RulesManager {
                 checked = true;
             }
         });
-        // console.log(eye,this.dataTurn.eyes);
         return checked
+    }
+
+    _initKoStrike(slot) {
+        const adjacentSlots = this._getAdjacentSlots(slot);
+        let sibling;
+        for (let key in adjacentSlots) {
+            sibling = adjacentSlots[key];
+            if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo && this._isAtari(sibling)) {
+                sibling.hasKoOpportunity = false;
+                slot.isUsableForStrikeKo = this.turnCount+2;
+            }
+        }
     }
 }
 

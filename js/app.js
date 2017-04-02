@@ -37,6 +37,9 @@ const vm = new Vue({
             }
             return this.currentPlayer
         },
+        getTurnCount() {
+            return this.turnCount;
+        }
     },
     methods: {
         createSlotsPosition() {

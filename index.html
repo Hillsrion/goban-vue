@@ -7,7 +7,7 @@
 </head>
 <body>
     <div id="app">
-        <goban :size="size" :slots="getGobanSlots">
+        <goban :size="size" :slots="getGobanSlots" :turn-count="getTurnCount">
             <div class="goban__top">
                 <goban-markers :count="size" :side="markersSide.x" :lettersAsMarker="lettersAsMarker"></goban-markers>
             </div>
@@ -20,8 +20,11 @@
                             :y="slot.y"
                             :is-fillable-by="slot.isFillableBy"
                             :belongs-to="slot.belongsTo"
+                            :ko-opportunity="slot.hasKoOpportunity"
                             :current-player="getCurrentPlayer"
-                            :is-filled="slot.isFilled">
+                            :is-filled="slot.isFilled"
+                            :is-usable-for-strike-ko="slot.isUsableForStrikeKo"
+                            :model="slot">
                         <div slot="stone-wrapper">
                             <stone></stone>
                         </div>

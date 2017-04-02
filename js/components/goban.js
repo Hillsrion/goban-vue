@@ -23,7 +23,7 @@ const gobanComponent = Vue.component('goban',{
             }
         }
     },
-    props: ['size','slots'],
+    props: ['size','slots','turnCount'],
     computed: {
         classList() {
             return [this.className,this.className+"--"+this.getSizeModifier()];
@@ -44,7 +44,7 @@ const gobanComponent = Vue.component('goban',{
                 }
             }
             this.slots[slot.x+","+slot.y] = slot;
-            const payload = RulesManager.eval(this.slots);
+            const payload = RulesManager.eval(this.slots,this.turnCount);
             EventBus.$emit("goban:endPhase",payload);
         }
     },

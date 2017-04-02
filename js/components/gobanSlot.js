@@ -28,7 +28,10 @@ export default Vue.component('gobanSlot',{
         },
         belongsTo: String,
         currentPlayer: String,
-        isFilled: Boolean
+        isFilled: Boolean,
+        koOpportunity: Boolean,
+        isUsableForStrikeKo: Number,
+        model: Object
     },
     computed: {
         classList() {
@@ -42,9 +45,6 @@ export default Vue.component('gobanSlot',{
                 user = "is-free"
             }
             return [this.className,modifier,user]
-        },
-        getFilled() {
-            return this.isFilled;
         },
         shadowClasses() {
             let modifier;
@@ -65,23 +65,36 @@ export default Vue.component('gobanSlot',{
     },
     methods: {
         isFillableByCurrentPlayer() {
-            return !this.isFilled && (this.isFillableBy==this.currentPlayer || !this.isFillableBy);
+            return !this.isFilled && (this.isFillableBy==this.currentPlayer || !this.isFillableBy || this.koOpportunity)
         },
         onClick() {
+            this.play()
+        },
+        play() {
             if(this.isFillableByCurrentPlayer()) {
-                const params = {
-                    x: this.x,
-                    y: this.y,
-                    isFilled: true,
-                    isFillableBy: "",
-                    belongsTo: this.currentPlayer,
-                    lastUsed: true,
-                    time: new Date()
-                };
-                const payload = new SlotModel(params);
+                const payload = new SlotModel(this.getNewSlotParams());
                 EventBus.$emit("goban:playPhase",payload);
+                // console.log(`Stone played in ${this.x},${this.y}`);
             } else {
                 console.log("There's already a stone")
+            }
+        },
+        /**
+         * Params for SlotModel instanciation emitted in playPhase event.
+         * @returns {{x: int, y: int, isFilled: boolean, isFillableBy: string, belongsTo: (String|*|null|string|string), lastUsed: boolean, isUsableForStrikeKo: boolean, hasKoOpportunity: boolean, relationships: Object, time: Date}}
+         */
+        getNewSlotParams() {
+            return {
+                x: this.x,
+                y: this.y,
+                isFilled: true,
+                isFillableBy: "",
+                belongsTo: this.currentPlayer,
+                lastUsed: true,
+                isUsableForStrikeKo: this.isUsableForStrikeKo,
+                hasKoOpportunity: this.koOpportunity,
+                relationships: this.model.relationships,
+                time: new Date()
             }
         },
         onMouseOver() {
