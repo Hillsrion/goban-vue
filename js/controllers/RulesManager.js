@@ -2,6 +2,7 @@
  * Created by Ismaël on 06/03/2017.
  */
 import EyeModel from "../models/eye"
+import GroupModel from "../models/group"
 class RulesManager {
     constructor() {
         this.currentGoban = [];
@@ -22,24 +23,15 @@ class RulesManager {
         this.dataTurn = this.getDefaultDataturn();
         this.turnCount = turnCount;
         this.lastKoOpportunity = null;
-        this._createTurnHistory();
         if (goban) {
             this.currentGoban = goban;
             let slot;
             for (let key in this.currentGoban) {
                 slot = this.currentGoban[key];
                 if (this._isConnectedSlot(slot)) {
-                    // This is logged for all slots
-                    //console.log("slot is connected");
-                    if (slot.lastUsed) {
-                        // console.log("slot is connected")
-                    }
+                    // if()
                 } else {
-                    // This is logged for all slots
-                    //console.log("slot is connected");
-                    if (slot.lastUsed) {
-                        // console.log("slot is not connected")
-                    }
+
                     if(slot.isFilled) {
                         /**
                          * Important : Let this _hasKoOpportunity execute first.
@@ -74,9 +66,8 @@ class RulesManager {
     _getConnectedArea() {
 
     }
-    _createTurnHistory() {
-        this.history[this.turnCount] = {};
-        this.history[this.turnCount].isUsableForStrikeKo = [];
+    _getGobanSlot(x,y) {
+        return this.currentGoban[x+","+y];
     }
     _putAtari(slot) {
         slot.isAtari = true;
@@ -106,7 +97,8 @@ class RulesManager {
          */
         const x = slot ? parseInt(slot.x) : null;
         const y = slot ? parseInt(slot.y) : null;
-        let goban = this.currentGoban;
+        // Don't remove the bind or you'll loose the scope even if you're already in it.
+        let getSlot = this._getGobanSlot.bind(this);
         /**
          * I parse x and y as int, and make the calculations aside
          * because it can be interpreted as a concatenation
@@ -114,10 +106,10 @@ class RulesManager {
          * @type {{x1: {SlotModel}, x2: {SlotModel}, y1: {SlotModel}, y2: {SlotModel}}}
          */
         const adjacentSlots = {
-            x1: goban[(x - 1) + "," + y],
-            x2: goban[(x + 1) + "," + y],
-            y1: goban[x + "," + (y - 1)],
-            y2: goban[x + "," + (y + 1)]
+            x1: getSlot(x-1,y),
+            x2: getSlot(x+1,y),
+            y1: getSlot(x,y-1),
+            y2: getSlot(x,y+1)
         };
         return adjacentSlots;
     }
@@ -246,12 +238,9 @@ class RulesManager {
      */
     _isEye(slots,referenceSlot) {
         let reference = referenceSlot.belongsTo;
-        let i = 0;
-        // We want at least 2 slots
-        slots.forEach(function(slot) {
-            if(slot && slot.isFilled) {
-                i++;
-            }
+        // We want at least 3 slots filled, I need to allow at least 1 empty slot.
+        slots = slots.filter(function (slot) {
+            return slot && slot.isFilled;
         });
         let isEye = slots.every((slot)=> {
             let response;
@@ -262,7 +251,7 @@ class RulesManager {
             }
             return response;
         });
-        return isEye && i>=3;
+        return isEye && slots.length>=3;
     }
 
     /**
@@ -275,23 +264,26 @@ class RulesManager {
     _getEyesAround(slot) {
         let sideEye = (side) => {
             let goban = this.currentGoban;
+            let getSlot = this._getGobanSlot.bind(this);
             let firstSibling,secondSibling,thirdSibling;
+            let x = slot.x;
+            let y = slot.y;
             if(side=="left") {
-                firstSibling = goban[(slot.x-1)+","+(slot.y-1)];
-                secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
-                thirdSibling = goban[(slot.x-2)+","+slot.y];
+                firstSibling = getSlot(x-1,y-1);
+                secondSibling = getSlot(x-1,y+1);
+                thirdSibling = getSlot(x-2,y);
             } else if(side=="right") {
-                firstSibling = goban[(slot.x+1)+","+(slot.y-1)];
-                secondSibling = goban[(slot.x+1)+","+(slot.y+1)];
-                thirdSibling = goban[(slot.x+2)+","+(slot.y)];
+                firstSibling = getSlot(x+1,y-1);
+                secondSibling = getSlot(x+1,y+1);
+                thirdSibling = getSlot(x+2,y);
             } else if(side=="top") {
-                firstSibling = goban[(slot.x+1)+","+(slot.y-1)];
-                secondSibling = goban[(slot.x-1)+","+(slot.y-1)];
-                thirdSibling = goban[(slot.x)+","+(slot.y-2)];
+                firstSibling = getSlot(x+1,y-1);
+                secondSibling = getSlot(x-1,y-1);
+                thirdSibling = getSlot(x,y-2);
             } else if(side=="bottom") {
-                firstSibling = goban[(slot.x+1)+","+(slot.y+1)];
-                secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
-                thirdSibling = goban[(slot.x)+","+(slot.y+2)];
+                firstSibling = getSlot(x+1,y+1);
+                secondSibling = getSlot(x-1,y+1);
+                thirdSibling = getSlot(x,y+2);
             }
             if(this._isEye([firstSibling,secondSibling,thirdSibling],slot)) {
                 return new EyeModel([slot,firstSibling,secondSibling,thirdSibling]);
