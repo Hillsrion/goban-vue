@@ -3,10 +3,12 @@
     height: $stone-size;
     border-radius: 100%;
     transform: translate3d(1px,1px,0);
-    &--black {
+    position: relative;
+    z-index: $firstLevelLayer;
+    .slot.userBlack & {
         background-color: black;
     }
-    &--white {
-        background-color: white;
+    .slot.userWhite & {
+        background-color: $white--gloomy;
     }
 }

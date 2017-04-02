@@ -2,7 +2,9 @@
  * Created by Ismaël on 25/02/2017.
  */
 import Vue from "vue"
+import EventBus from "../controllers/EventBus"
 import RulesManager from "../controllers/RulesManager"
+import SlotModel from "../models/slot"
 export default Vue.component('gobanSlot',{
     template:
         `<div @click='onClick' @mouseover='onMouseOver' @mouseleave="onMouseLeave" :class='classList'>
@@ -12,32 +14,87 @@ export default Vue.component('gobanSlot',{
     data() {
         return {
             className: "slot",
-            isFilled: false,
-            hasShadow: false
+            hasShadow: false,
+            time: null
         }
+    },
+    props: {
+        x: Number,
+        y: Number,
+        isFillableBy: {
+            type: String,
+            required: true,
+            default: null
+        },
+        belongsTo: String,
+        currentPlayer: String,
+        isFilled: Boolean,
+        koOpportunity: Boolean,
+        isUsableForStrikeKo: Number,
+        model: Object
     },
     computed: {
         classList() {
             let modifier = this.isFilled ? 'is-filled' : '';
-            return [this.className,modifier]
+            let isFree = this.belongsTo && this.belongsTo!==null && this.isFillableBy!==this.currentPlayer;
+            let user;
+            if(isFree) {
+                // Getting the state class in camelCase.
+                user = "user"+this.belongsTo.substring(0,1).toUpperCase()+this.belongsTo.substring(1);
+            } else if(!this.isFilled) {
+                user = "is-free"
+            }
+            return [this.className,modifier,user]
         },
         shadowClasses() {
-            return [this.className+"__shadow"]
+            let modifier;
+            let elClass = this.className+"__shadow";
+            if(this.currentPlayer=="black") {
+                modifier = elClass+"--black";
+            } else if(this.currentPlayer=="white") {
+                modifier = elClass+"--white";
+            }
+            return [elClass,modifier]
         },
         shouldDisplayStone() {
             return this.isFilled
         },
         shouldDisplayShadow() {
-            return this.hasShadow && !this.isFilled
+            return this.hasShadow && this.isFillableByCurrentPlayer();
         }
     },
     methods: {
+        isFillableByCurrentPlayer() {
+            return !this.isFilled && (this.isFillableBy==this.currentPlayer || !this.isFillableBy || this.koOpportunity)
+        },
         onClick() {
-            if(!this.isFilled && RulesManager.canSetStone()) {
-                this.isFilled = true;
-                RulesManager.evalTurn()
+            this.play()
+        },
+        play() {
+            if(this.isFillableByCurrentPlayer()) {
+                const payload = new SlotModel(this.getNewSlotParams());
+                EventBus.$emit("goban:playPhase",payload);
+                // console.log(`Stone played in ${this.x},${this.y}`);
             } else {
                 console.log("There's already a stone")
+            }
+        },
+        /**
+         * Params for SlotModel instanciation emitted in playPhase event.
+         * @returns {{x: int, y: int, isFilled: boolean, isFillableBy: string, belongsTo: (String|*|null|string|string), lastUsed: boolean, isUsableForStrikeKo: boolean, hasKoOpportunity: boolean, relationships: Object, time: Date}}
+         */
+        getNewSlotParams() {
+            return {
+                x: this.x,
+                y: this.y,
+                isFilled: true,
+                isFillableBy: "",
+                belongsTo: this.currentPlayer,
+                lastUsed: true,
+                isUsableForStrikeKo: this.isUsableForStrikeKo,
+                hasKoOpportunity: this.koOpportunity,
+                relationships: this.model.relationships,
+                time: new Date()
             }
         },
         onMouseOver() {
@@ -50,3 +107,4 @@ export default Vue.component('gobanSlot',{
         }
     }
 })
+

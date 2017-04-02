@@ -7,13 +7,29 @@
 </head>
 <body>
     <div id="app">
-        <goban :size="medium">
-            <div class="goban__inner">
-                <goban-slot v-for='n in slotCount'>
-                    <div slot="stone-wrapper">
-                        <stone :color="colorPlayer"></stone>
-                    </div>
-                </goban-slot>
+        <goban :size="size" :slots="getGobanSlots" :turn-count="getTurnCount">
+            <div class="goban__top">
+                <goban-markers :count="size" :side="markersSide.x" :lettersAsMarker="lettersAsMarker"></goban-markers>
+            </div>
+            <div class="goban__bottom">
+                <goban-markers :count="size" :side="markersSide.y"></goban-markers>
+                <div class="goban__field">
+                    <goban-slot
+                            v-for='slot in getGobanSlots'
+                            :x="slot.x"
+                            :y="slot.y"
+                            :is-fillable-by="slot.isFillableBy"
+                            :belongs-to="slot.belongsTo"
+                            :ko-opportunity="slot.hasKoOpportunity"
+                            :current-player="getCurrentPlayer"
+                            :is-filled="slot.isFilled"
+                            :is-usable-for-strike-ko="slot.isUsableForStrikeKo"
+                            :model="slot">
+                        <div slot="stone-wrapper">
+                            <stone></stone>
+                        </div>
+                    </goban-slot>
+                </div>
             </div>
         </goban>
         <!--<panel></panel>-->
