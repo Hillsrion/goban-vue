@@ -9,6 +9,8 @@ export default class GroupModel {
     constructor(slots) {
         this.slots = slots;
         this.slug = "group";
+        this.isRunning = false;
+        this.isDone = false;
     }
 
     /**

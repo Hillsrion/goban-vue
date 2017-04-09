@@ -17,6 +17,7 @@ class RulesManager {
             koList: [],
             potentialKoList: [],
             eyes: [],
+            groups: []
         };
     }
     eval(goban,turnCount) {
@@ -26,10 +27,21 @@ class RulesManager {
         if (goban) {
             this.currentGoban = goban;
             let slot;
+            let getSlot = this._getGobanSlot.bind(this);
             for (let key in this.currentGoban) {
                 slot = this.currentGoban[key];
+                let x = slot.x;
+                let y = slot.y;
                 if (this._isConnectedSlot(slot)) {
-                    // if()
+                    let previousSlot = getSlot(x-1,y);
+                    // The previous slot is filled and belong to us.
+                    if(previousSlot && previousSlot.isFilled && previousSlot.belongsTo==slot.belongsTo) {
+                        if(previousSlot.relationships.group) {
+
+                        } else {
+
+                        }
+                    }
                 } else {
 
                     if(slot.isFilled) {
@@ -182,18 +194,12 @@ class RulesManager {
          */
         for (let key in adjacentSlots) {
             sibling = adjacentSlots[key];
-            if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo) {
-                i++;
-            } else if(!sibling) {
-                // If sibling doesn't exist, it's that we're on a border
+            // If sibling doesn't exist, it's that we're on a border
+            if ((sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo) || !sibling) {
                 i++;
             }
         }
         return i == 3
-    }
-
-    _isKo(position) {
-        return true;
     }
 
     /**
@@ -218,7 +224,7 @@ class RulesManager {
             if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo) {
                 i++;
             } else if(!sibling) {
-                // If sibling doesn't exist, it's that we're on a border
+                // If sibling doesn't exist, we're on a border
                 i++;
             }
             if (i == 4) {
