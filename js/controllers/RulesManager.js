@@ -2,12 +2,18 @@
  * Created by Ismaël on 06/03/2017.
  */
 import EyeModel from "../models/eye"
+import GroupModel from "../models/group"
 class RulesManager {
     constructor() {
         this.currentGoban = [];
         this.dataTurn = this.getDefaultDataturn();
         this.turnCount = 1;
         this.history = {};
+        this.helpers = {
+            isPreviousSlotFriend(previous,current) {
+                return previous && previous.isFilled && previous.belongsTo==current.belongsTo;
+            }
+        }
     }
     getDefaultDataturn() {
         return {
@@ -16,6 +22,7 @@ class RulesManager {
             koList: [],
             potentialKoList: [],
             eyes: [],
+            groups: []
         };
     }
     eval(goban,turnCount) {
@@ -26,24 +33,18 @@ class RulesManager {
         if (goban) {
             this.currentGoban = goban;
             let slot;
+            let getSlot = this._getGobanSlot.bind(this);
             for (let key in this.currentGoban) {
                 slot = this.currentGoban[key];
+                let x = slot.x;
+                let y = slot.y;
                 if (this._isConnectedSlot(slot)) {
-                    // This is logged for all slots
-                    //console.log("slot is connected");
-                    if (slot.lastUsed) {
-                        // console.log("slot is connected")
-                    }
+                    this._groupSlots(slot);
                 } else {
-                    // This is logged for all slots
-                    //console.log("slot is connected");
-                    if (slot.lastUsed) {
-                        // console.log("slot is not connected")
-                    }
                     if(slot.isFilled) {
                         /**
-                         * Important : Let this _hasKoOpportunity execute first.
-                         * If we don't, a ko  which should kill a stone can fail because
+                         * NOTE: Important : Let this _hasKoOpportunity execute first.
+                         * If we don't, a ko which should kill a stone can fail because
                          * the stone is already surrounded by 4 opponent stone.
                          * So the ko doesn't work
                          */
@@ -56,7 +57,6 @@ class RulesManager {
                         } else if (!slot.hasKoOpportunity && this._isDeadKilledBy(slot)) {
                             this._killSingleSlot(slot);
                             this._initKoStrike(slot);
-                            // this.dataTurn.koList.push(slot);
                         }
                     } else {
                         if (this._isUnfillableByOpponent(slot)) {
@@ -71,12 +71,12 @@ class RulesManager {
             console.log(goban);
         }
     }
-    _getConnectedArea() {
-
-    }
     _createTurnHistory() {
         this.history[this.turnCount] = {};
-        this.history[this.turnCount].isUsableForStrikeKo = [];
+        this.history[this.turnCount].groups = [];
+    }
+    _getGobanSlot(x,y) {
+        return this.currentGoban[x+","+y];
     }
     _putAtari(slot) {
         slot.isAtari = true;
@@ -106,18 +106,19 @@ class RulesManager {
          */
         const x = slot ? parseInt(slot.x) : null;
         const y = slot ? parseInt(slot.y) : null;
-        let goban = this.currentGoban;
+        // Don't remove the bind or you'll loose the scope even if you're already in it.
+        let getSlot = this._getGobanSlot.bind(this);
         /**
          * I parse x and y as int, and make the calculations aside
          * because it can be interpreted as a concatenation
-         * 1 + 1 can result as 11 instead of 2
+         * 1 + 1 can result as 11 instead of 2 if not interpreted as a calculation
          * @type {{x1: {SlotModel}, x2: {SlotModel}, y1: {SlotModel}, y2: {SlotModel}}}
          */
         const adjacentSlots = {
-            x1: goban[(x - 1) + "," + y],
-            x2: goban[(x + 1) + "," + y],
-            y1: goban[x + "," + (y - 1)],
-            y2: goban[x + "," + (y + 1)]
+            x1: getSlot(x-1,y),
+            x2: getSlot(x+1,y),
+            y1: getSlot(x,y-1),
+            y2: getSlot(x,y+1)
         };
         return adjacentSlots;
     }
@@ -190,18 +191,12 @@ class RulesManager {
          */
         for (let key in adjacentSlots) {
             sibling = adjacentSlots[key];
-            if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo) {
-                i++;
-            } else if(!sibling) {
-                // If sibling doesn't exist, it's that we're on a border
+            // If sibling doesn't exist, it's that we're on a border
+            if ((sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo) || !sibling) {
                 i++;
             }
         }
         return i == 3
-    }
-
-    _isKo(position) {
-        return true;
     }
 
     /**
@@ -226,7 +221,7 @@ class RulesManager {
             if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo) {
                 i++;
             } else if(!sibling) {
-                // If sibling doesn't exist, it's that we're on a border
+                // If sibling doesn't exist, we're on a border
                 i++;
             }
             if (i == 4) {
@@ -246,12 +241,9 @@ class RulesManager {
      */
     _isEye(slots,referenceSlot) {
         let reference = referenceSlot.belongsTo;
-        let i = 0;
-        // We want at least 2 slots
-        slots.forEach(function(slot) {
-            if(slot && slot.isFilled) {
-                i++;
-            }
+        // We want at least 3 slots filled, I need to allow at least 1 empty slot.
+        slots = slots.filter(function (slot) {
+            return slot && slot.isFilled;
         });
         let isEye = slots.every((slot)=> {
             let response;
@@ -262,7 +254,7 @@ class RulesManager {
             }
             return response;
         });
-        return isEye && i>=3;
+        return isEye && slots.length>=3;
     }
 
     /**
@@ -275,23 +267,26 @@ class RulesManager {
     _getEyesAround(slot) {
         let sideEye = (side) => {
             let goban = this.currentGoban;
+            let getSlot = this._getGobanSlot.bind(this);
             let firstSibling,secondSibling,thirdSibling;
+            let x = slot.x;
+            let y = slot.y;
             if(side=="left") {
-                firstSibling = goban[(slot.x-1)+","+(slot.y-1)];
-                secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
-                thirdSibling = goban[(slot.x-2)+","+slot.y];
+                firstSibling = getSlot(x-1,y-1);
+                secondSibling = getSlot(x-1,y+1);
+                thirdSibling = getSlot(x-2,y);
             } else if(side=="right") {
-                firstSibling = goban[(slot.x+1)+","+(slot.y-1)];
-                secondSibling = goban[(slot.x+1)+","+(slot.y+1)];
-                thirdSibling = goban[(slot.x+2)+","+(slot.y)];
+                firstSibling = getSlot(x+1,y-1);
+                secondSibling = getSlot(x+1,y+1);
+                thirdSibling = getSlot(x+2,y);
             } else if(side=="top") {
-                firstSibling = goban[(slot.x+1)+","+(slot.y-1)];
-                secondSibling = goban[(slot.x-1)+","+(slot.y-1)];
-                thirdSibling = goban[(slot.x)+","+(slot.y-2)];
+                firstSibling = getSlot(x+1,y-1);
+                secondSibling = getSlot(x-1,y-1);
+                thirdSibling = getSlot(x,y-2);
             } else if(side=="bottom") {
-                firstSibling = goban[(slot.x+1)+","+(slot.y+1)];
-                secondSibling = goban[(slot.x-1)+","+(slot.y+1)];
-                thirdSibling = goban[(slot.x)+","+(slot.y+2)];
+                firstSibling = getSlot(x+1,y+1);
+                secondSibling = getSlot(x-1,y+1);
+                thirdSibling = getSlot(x,y+2);
             }
             if(this._isEye([firstSibling,secondSibling,thirdSibling],slot)) {
                 return new EyeModel([slot,firstSibling,secondSibling,thirdSibling]);
@@ -315,7 +310,7 @@ class RulesManager {
     }
     _hasKoOpportunity(slot) {
         let eyes = this._getEyesAround(slot);
-        let returned;
+        let response;
         for(let key in eyes) {
             let eyeModel = eyes[key];
             if(eyeModel && !this._isCheckedEye(eyeModel)) {
@@ -326,11 +321,11 @@ class RulesManager {
                     if(this._isAtari(currentSlot) && (currentSlot.isUsableForStrikeKo>=this.turnCount-2 || currentSlot.isUsableForStrikeKo==0)) {
                         // console.log(currentSlot);
                         this.lastKoOpportunity = this.currentGoban[eyeModel.centerCoords.x+","+eyeModel.centerCoords.y];
-                        returned = true;
+                        response = true;
                     }
                 }
                 this.dataTurn.eyes.push(eyeModel);
-                return returned;
+                return response;
             } else if(eyeModel && this._isCheckedEye(eyeModel)) {
                 console.log("I already have this eye stored.")
             }
@@ -344,15 +339,27 @@ class RulesManager {
      * @private
      */
     _isCheckedEye(eye) {
-        let checked = false;
-        this.dataTurn.eyes.forEach((storedEye) => {
-            if(storedEye.id==eye.id) {
-                checked = true;
-            }
+        return this.dataTurn.eyes.some((storedEye) => {
+            return storedEye.id==eye.id;
         });
-        return checked
     }
 
+    /**
+     *
+     * @param slot {SlotModel}
+     * @private
+     */
+    _isRegisteredGroup(slot) {
+        let predicate;
+        if(this.turnCount>=3) {
+            predicate = this.history.groups.some(function (group) {
+                return group.id==slot.relationships.groupId && group.isComplete;
+            });
+        } else {
+            predicate = false;
+        }
+        return predicate;
+    }
     _initKoStrike(slot) {
         const adjacentSlots = this._getAdjacentSlots(slot);
         let sibling;
@@ -360,9 +367,66 @@ class RulesManager {
             sibling = adjacentSlots[key];
             if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo && this._isAtari(sibling)) {
                 sibling.hasKoOpportunity = false;
+                this.dataTurn.koList.push(slot);
                 slot.isUsableForStrikeKo = this.turnCount+2;
             }
         }
+    }
+
+    /**
+     * Gets the group concerned by the id and the turn of the relationship given in parameter.
+     * @param relationship An object containing informations about the group the slot belongs to.
+     * @returns {GroupModel | undefined} The wanted GroupModel instance
+     * @private
+     */
+    _getGroupFromHistory(relationship) {
+        if(relationship) {
+            return this.history[relationship.turn].groups.find(function(group) {
+                return group.id==relationship.id;
+            });
+        }
+    }
+
+    /**
+     * Adds the previous reference slot (x-1 or y-1) in a group if not in a group and the slot given in parameter does. The inverse logic applies.
+     * If neither of the slot and previous slots belong to a group, a new one is created with these two.
+     * @param slot {SlotModel}
+     * @private
+     */
+    _groupSlots(slot) {
+        let previousSlotX = this._getGobanSlot(slot.x-1,slot.y);
+        let previousSlotY = this._getGobanSlot(slot.x,slot.y-1);
+        // The previous slot is filled and belong to us.
+        let groupWithReference = referenceSlot => {
+            if(referenceSlot && referenceSlot.isFilled && referenceSlot.belongsTo==slot.belongsTo) {
+                // The previous slot has a group and the current doesn't
+                if(referenceSlot.relationships.group && !slot.relationships.group) {
+                    let group = this._getGroupFromHistory(referenceSlot.relationships.group);
+                    if(group) {
+                        group.add(slot);
+                    }
+                // The previous slot has no group, but the current does.
+                } else if(!referenceSlot.relationships.group && slot.relationships.group) {
+                    let group = this._getGroupFromHistory(slot.relationships.group);
+                    if(group) {
+                        group.add(referenceSlot);
+                    }
+                // The previous slot has no group, neither the current
+                } else if(!referenceSlot.relationships.group && !slot.relationships.group) {
+                    this.history[this.turnCount].groups.push(new GroupModel([referenceSlot,slot],this.turnCount));
+                }
+            }
+        };
+        groupWithReference(previousSlotX);
+        groupWithReference(previousSlotY);
+    }
+    _isGroupAtari(group) {
+
+    }
+    _getGroupFreedoms(group) {
+        let freedoms = group.slots.filter((slot) => {
+            let adjacentSlots = this._getAdjacentSlots();
+        })
     }
 }
 

@@ -26,8 +26,20 @@ export default class SlotModel {
         this.isAtari = false;
         this.belongsTo = "";
         this.hasKoOpportunity = false;
-        if(this.relationships.eye) {
-            this.relationships.eye = [];
+        this._resetRelationships();
+    }
+
+    /**
+     * Assign the slot relationships properties to empty array except the excluded ones given in parameter.
+     * @param excludeList {Array}
+     * @private
+     */
+    _resetRelationships(excludeList=[]) {
+        for(let key in this.relationships) {
+            let relationship = this.relationships[key];
+            if(!excludeList.includes(key)) {
+                relationship = null;
+            }
         }
     }
 }
