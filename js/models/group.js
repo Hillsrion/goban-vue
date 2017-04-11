@@ -55,17 +55,4 @@ export default class GroupModel {
     _insertSingleRelationship(slot) {
         slot.relationships[this.slug] = {id: this.id, turn: this.createdAtTurn};
     }
-    destroy(slots) {
-        if(slots) {
-            let i = 0;
-            this.slots.forEach((slot)=> {
-                if(slot.relationships[this.slug] && !slot.relationships[this.slug].includes(this.id)) {
-                    this.slots.splice(i,1);
-                }
-                i++;
-            });
-        } else {
-            console.warn(`Can't delete falsy value from the group. Value : ${slots}`);
-        }
-    }
 }

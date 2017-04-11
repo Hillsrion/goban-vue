@@ -11,7 +11,6 @@ class RulesManager {
         this.history = {};
         this.helpers = {
             isPreviousSlotFriend(previous,current) {
-                console.log(this.test());
                 return previous && previous.isFilled && previous.belongsTo==current.belongsTo;
             }
         }
@@ -40,37 +39,12 @@ class RulesManager {
                 let x = slot.x;
                 let y = slot.y;
                 if (this._isConnectedSlot(slot)) {
-                    let previousSlot = getSlot(x-1,y);
-                    if(previousSlot && previousSlot.isFilled) {
-                        // The previous slot is filled and belong to us.
-                        if(previousSlot.belongsTo==slot.belongsTo) {
-                            debugger;
-                            // The previous slot has a group and the current doesn't
-                            if(previousSlot.relationships.group && !slot.relationships.group) {
-                                debugger;
-                                let group = this._getGroupFromHistory(previousSlot.relationships.group);
-                                if(group) {
-                                    group.add(slot);
-                                }
-                                // The previous slot has no group, but the current does.
-                            } else if(!previousSlot.relationships.group && slot.relationships.group) {
-                                debugger;
-                                let group = this._getGroupFromHistory(slot.relationships.group);
-                                if(group) {
-                                    group.add(previousSlot);
-                                }
-                                // The previous slot has no group, neither the current
-                            } else if(!previousSlot.relationships.group && !slot.relationships.group) {
-                                this.history[this.turnCount].groups.push(new GroupModel([previousSlot,slot],this.turnCount));
-                            }
-                        }
-                    }
+                    this._groupSlots(slot);
                 } else {
-
                     if(slot.isFilled) {
                         /**
-                         * Important : Let this _hasKoOpportunity execute first.
-                         * If we don't, a ko  which should kill a stone can fail because
+                         * NOTE: Important : Let this _hasKoOpportunity execute first.
+                         * If we don't, a ko which should kill a stone can fail because
                          * the stone is already surrounded by 4 opponent stone.
                          * So the ko doesn't work
                          */
@@ -100,9 +74,6 @@ class RulesManager {
     _createTurnHistory() {
         this.history[this.turnCount] = {};
         this.history[this.turnCount].groups = [];
-    }
-    _getConnectedArea() {
-
     }
     _getGobanSlot(x,y) {
         return this.currentGoban[x+","+y];
@@ -140,7 +111,7 @@ class RulesManager {
         /**
          * I parse x and y as int, and make the calculations aside
          * because it can be interpreted as a concatenation
-         * 1 + 1 can result as 11 instead of 2
+         * 1 + 1 can result as 11 instead of 2 if not interpreted as a calculation
          * @type {{x1: {SlotModel}, x2: {SlotModel}, y1: {SlotModel}, y2: {SlotModel}}}
          */
         const adjacentSlots = {
@@ -402,12 +373,60 @@ class RulesManager {
         }
     }
 
+    /**
+     * Gets the group concerned by the id and the turn of the relationship given in parameter.
+     * @param relationship An object containing informations about the group the slot belongs to.
+     * @returns {GroupModel | undefined} The wanted GroupModel instance
+     * @private
+     */
     _getGroupFromHistory(relationship) {
         if(relationship) {
             return this.history[relationship.turn].groups.find(function(group) {
                 return group.id==relationship.id;
             });
         }
+    }
+
+    /**
+     * Adds the previous reference slot (x-1 or y-1) in a group if not in a group and the slot given in parameter does. The inverse logic applies.
+     * If neither of the slot and previous slots belong to a group, a new one is created with these two.
+     * @param slot {SlotModel}
+     * @private
+     */
+    _groupSlots(slot) {
+        let previousSlotX = this._getGobanSlot(slot.x-1,slot.y);
+        let previousSlotY = this._getGobanSlot(slot.x,slot.y-1);
+        // The previous slot is filled and belong to us.
+        let groupWithReference = referenceSlot => {
+            if(referenceSlot && referenceSlot.isFilled && referenceSlot.belongsTo==slot.belongsTo) {
+                // The previous slot has a group and the current doesn't
+                if(referenceSlot.relationships.group && !slot.relationships.group) {
+                    let group = this._getGroupFromHistory(referenceSlot.relationships.group);
+                    if(group) {
+                        group.add(slot);
+                    }
+                // The previous slot has no group, but the current does.
+                } else if(!referenceSlot.relationships.group && slot.relationships.group) {
+                    let group = this._getGroupFromHistory(slot.relationships.group);
+                    if(group) {
+                        group.add(referenceSlot);
+                    }
+                // The previous slot has no group, neither the current
+                } else if(!referenceSlot.relationships.group && !slot.relationships.group) {
+                    this.history[this.turnCount].groups.push(new GroupModel([referenceSlot,slot],this.turnCount));
+                }
+            }
+        };
+        groupWithReference(previousSlotX);
+        groupWithReference(previousSlotY);
+    }
+    _isGroupAtari(group) {
+
+    }
+    _getGroupFreedoms(group) {
+        let freedoms = group.slots.filter((slot) => {
+            let adjacentSlots = this._getAdjacentSlots();
+        })
     }
 }
 
