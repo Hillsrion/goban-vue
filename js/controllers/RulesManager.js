@@ -9,6 +9,12 @@ class RulesManager {
         this.dataTurn = this.getDefaultDataturn();
         this.turnCount = 1;
         this.history = {};
+        this.helpers = {
+            isPreviousSlotFriend(previous,current) {
+                console.log(this.test());
+                return previous && previous.isFilled && previous.belongsTo==current.belongsTo;
+            }
+        }
     }
     getDefaultDataturn() {
         return {
@@ -24,6 +30,7 @@ class RulesManager {
         this.dataTurn = this.getDefaultDataturn();
         this.turnCount = turnCount;
         this.lastKoOpportunity = null;
+        this._createTurnHistory();
         if (goban) {
             this.currentGoban = goban;
             let slot;
@@ -34,12 +41,28 @@ class RulesManager {
                 let y = slot.y;
                 if (this._isConnectedSlot(slot)) {
                     let previousSlot = getSlot(x-1,y);
-                    // The previous slot is filled and belong to us.
-                    if(previousSlot && previousSlot.isFilled && previousSlot.belongsTo==slot.belongsTo) {
-                        if(previousSlot.relationships.group) {
-
-                        } else {
-
+                    if(previousSlot && previousSlot.isFilled) {
+                        // The previous slot is filled and belong to us.
+                        if(previousSlot.belongsTo==slot.belongsTo) {
+                            debugger;
+                            // The previous slot has a group and the current doesn't
+                            if(previousSlot.relationships.group && !slot.relationships.group) {
+                                debugger;
+                                let group = this._getGroupFromHistory(previousSlot.relationships.group);
+                                if(group) {
+                                    group.add(slot);
+                                }
+                                // The previous slot has no group, but the current does.
+                            } else if(!previousSlot.relationships.group && slot.relationships.group) {
+                                debugger;
+                                let group = this._getGroupFromHistory(slot.relationships.group);
+                                if(group) {
+                                    group.add(previousSlot);
+                                }
+                                // The previous slot has no group, neither the current
+                            } else if(!previousSlot.relationships.group && !slot.relationships.group) {
+                                this.history[this.turnCount].groups.push(new GroupModel([previousSlot,slot],this.turnCount));
+                            }
                         }
                     }
                 } else {
@@ -60,7 +83,6 @@ class RulesManager {
                         } else if (!slot.hasKoOpportunity && this._isDeadKilledBy(slot)) {
                             this._killSingleSlot(slot);
                             this._initKoStrike(slot);
-                            // this.dataTurn.koList.push(slot);
                         }
                     } else {
                         if (this._isUnfillableByOpponent(slot)) {
@@ -74,6 +96,10 @@ class RulesManager {
             console.warn("goban given in param is not valid.");
             console.log(goban);
         }
+    }
+    _createTurnHistory() {
+        this.history[this.turnCount] = {};
+        this.history[this.turnCount].groups = [];
     }
     _getConnectedArea() {
 
@@ -313,7 +339,7 @@ class RulesManager {
     }
     _hasKoOpportunity(slot) {
         let eyes = this._getEyesAround(slot);
-        let returned;
+        let response;
         for(let key in eyes) {
             let eyeModel = eyes[key];
             if(eyeModel && !this._isCheckedEye(eyeModel)) {
@@ -324,11 +350,11 @@ class RulesManager {
                     if(this._isAtari(currentSlot) && (currentSlot.isUsableForStrikeKo>=this.turnCount-2 || currentSlot.isUsableForStrikeKo==0)) {
                         // console.log(currentSlot);
                         this.lastKoOpportunity = this.currentGoban[eyeModel.centerCoords.x+","+eyeModel.centerCoords.y];
-                        returned = true;
+                        response = true;
                     }
                 }
                 this.dataTurn.eyes.push(eyeModel);
-                return returned;
+                return response;
             } else if(eyeModel && this._isCheckedEye(eyeModel)) {
                 console.log("I already have this eye stored.")
             }
@@ -342,15 +368,27 @@ class RulesManager {
      * @private
      */
     _isCheckedEye(eye) {
-        let checked = false;
-        this.dataTurn.eyes.forEach((storedEye) => {
-            if(storedEye.id==eye.id) {
-                checked = true;
-            }
+        return this.dataTurn.eyes.some((storedEye) => {
+            return storedEye.id==eye.id;
         });
-        return checked
     }
 
+    /**
+     *
+     * @param slot {SlotModel}
+     * @private
+     */
+    _isRegisteredGroup(slot) {
+        let predicate;
+        if(this.turnCount>=3) {
+            predicate = this.history.groups.some(function (group) {
+                return group.id==slot.relationships.groupId && group.isComplete;
+            });
+        } else {
+            predicate = false;
+        }
+        return predicate;
+    }
     _initKoStrike(slot) {
         const adjacentSlots = this._getAdjacentSlots(slot);
         let sibling;
@@ -358,8 +396,17 @@ class RulesManager {
             sibling = adjacentSlots[key];
             if (sibling && sibling.isFilled && sibling.belongsTo !== slot.belongsTo && this._isAtari(sibling)) {
                 sibling.hasKoOpportunity = false;
+                this.dataTurn.koList.push(slot);
                 slot.isUsableForStrikeKo = this.turnCount+2;
             }
+        }
+    }
+
+    _getGroupFromHistory(relationship) {
+        if(relationship) {
+            return this.history[relationship.turn].groups.find(function(group) {
+                return group.id==relationship.id;
+            });
         }
     }
 }

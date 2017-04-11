@@ -38,7 +38,7 @@ export default class SlotModel {
         for(let key in this.relationships) {
             let relationship = this.relationships[key];
             if(!excludeList.includes(key)) {
-                relationship = [];
+                relationship = null;
             }
         }
     }

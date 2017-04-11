@@ -5,12 +5,16 @@ export default class GroupModel {
     /**
      *
      * @param slots {Array} An Array of objects {SlotModel}
+     * @param turn {Number} The turn when the group is created.
      */
-    constructor(slots) {
+    constructor(slots,turn) {
         this.slots = slots;
         this.slug = "group";
-        this.isRunning = false;
-        this.isDone = false;
+        this.createdAtTurn = turn;
+        this.id = Date.now();
+        this.isComplete = false;
+        this._insertRelationShips();
+        // console.log("created group. id is"+this.id);
     }
 
     /**
@@ -21,8 +25,10 @@ export default class GroupModel {
         if(slots) {
             if(Array.isArray(slots)) {
                 this.slots.concat(slots);
+                this._insertRelationShips(slots);
             } else if(typeof slots === 'object') {
                 this.slots.push(slots);
+                this._insertSingleRelationship(slots);
             } else {
                 console.warn(`Can't add these slots to the group. Value : ${slots}`);
             }
@@ -30,13 +36,24 @@ export default class GroupModel {
             console.warn(`Can't add a falsy value to the group. Value : ${slots}`);
         }
     }
-    generateId() {
-        let result = [];
-        this.slots.forEach((slot)=> {
-            result.push(String(slot.x) + String(slot.y))
-        });
-        result = result.sort();
-        this.id = result.join('');
+    _insertRelationShips(slots) {
+        let pickedSlots;
+        if(!slots) {
+            pickedSlots = this.slots;
+        } else {
+            pickedSlots = slots;
+        }
+        for(let key in pickedSlots) {
+            if(pickedSlots[key]) {
+                let slot = pickedSlots[key];
+                if(slot) {
+                    this._insertSingleRelationship(slot);
+                }
+            }
+        }
+    }
+    _insertSingleRelationship(slot) {
+        slot.relationships[this.slug] = {id: this.id, turn: this.createdAtTurn};
     }
     destroy(slots) {
         if(slots) {
