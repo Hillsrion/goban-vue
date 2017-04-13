@@ -12,7 +12,9 @@ export default class GroupModel {
         this.slug = "group";
         this.createdAtTurn = turn;
         this.id = Date.now();
-        this.isComplete = false;
+        this.isAtari = false;
+        this.isDead = false;
+        this.color = null;
         this._insertRelationShips();
         // console.log("created group. id is"+this.id);
     }
@@ -46,6 +48,10 @@ export default class GroupModel {
         for(let key in pickedSlots) {
             if(pickedSlots[key]) {
                 let slot = pickedSlots[key];
+                // Defining group color if still not defined
+                if(!this.color) {
+                    this.color = slot.belongsTo;
+                }
                 if(slot) {
                     this._insertSingleRelationship(slot);
                 }

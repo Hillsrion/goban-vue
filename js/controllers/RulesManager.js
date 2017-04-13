@@ -40,6 +40,19 @@ class RulesManager {
                 let y = slot.y;
                 if (this._isConnectedSlot(slot)) {
                     this._groupSlots(slot);
+                    let groups = this._getAliveGroups();
+                    groups.forEach((group)=> {
+                        let freedomsCount = this._getGroupFreedoms(group);
+                        if(freedomsCount==1) {
+                            group.isAtari = true;
+                        } else if(freedomsCount==0) {
+                            this.lastKilledBy = group.color=="black" ? "white" : "black";
+                            group.slots.forEach(groupSlot => {
+                                this._killSingleSlot(groupSlot);
+                            });
+                            group.isDead = true;
+                        }
+                    })
                 } else {
                     if(slot.isFilled) {
                         /**
@@ -420,13 +433,33 @@ class RulesManager {
         groupWithReference(previousSlotX);
         groupWithReference(previousSlotY);
     }
-    _isGroupAtari(group) {
-
-    }
     _getGroupFreedoms(group) {
-        let freedoms = group.slots.filter((slot) => {
-            let adjacentSlots = this._getAdjacentSlots();
-        })
+        let i = 0;
+        let freedoms = [];
+        group.slots.forEach((slot) => {
+            let adjacentSlots = this._getAdjacentSlots(slot);
+            for(let key in adjacentSlots) {
+                let adjacentSlot = adjacentSlots[key];
+                if(adjacentSlot && !adjacentSlot.isFilled) {
+                    let coords = adjacentSlot.x+","+adjacentSlot.y;
+                    if(!freedoms.includes(coords)) {
+                        freedoms.push(coords);
+                    }
+                }
+            }
+        });
+        return freedoms.length;
+    }
+    _getAliveGroups() {
+        let groups = [];
+        for(let key in this.history) {
+            this.history[key].groups.forEach(function(group) {
+                if(!group.isDead) {
+                    groups.push(group);
+                }
+            })
+        }
+        return groups;
     }
 }
 
