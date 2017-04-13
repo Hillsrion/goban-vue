@@ -22,7 +22,9 @@ export default class SlotModel {
      */
     killReset(killedBy) {
         this.isFilled = false;
-        this.isFillableBy = killedBy;
+        if(killedBy) {
+            this.isFillableBy = killedBy;
+        }
         this.isAtari = false;
         this.belongsTo = "";
         this.hasKoOpportunity = false;

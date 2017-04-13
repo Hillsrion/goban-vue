@@ -29,6 +29,7 @@ class RulesManager {
         this.dataTurn = this.getDefaultDataturn();
         this.turnCount = turnCount;
         this.lastKoOpportunity = null;
+        this.lastKilledBy = null;
         this._createTurnHistory();
         if (goban) {
             this.currentGoban = goban;
@@ -46,7 +47,6 @@ class RulesManager {
                         if(freedomsCount==1) {
                             group.isAtari = true;
                         } else if(freedomsCount==0) {
-                            this.lastKilledBy = group.color=="black" ? "white" : "black";
                             group.slots.forEach(groupSlot => {
                                 this._killSingleSlot(groupSlot);
                             });
@@ -93,7 +93,7 @@ class RulesManager {
     }
     _putAtari(slot) {
         slot.isAtari = true;
-        console.log(`slot position ${slot.x},${slot.y} is in Atari`);
+        //console.log(`slot position ${slot.x},${slot.y} is in Atari`);
         this.dataTurn.atariList.push(slot);
     }
 
