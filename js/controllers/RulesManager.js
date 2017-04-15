@@ -12,6 +12,9 @@ class RulesManager {
         this.helpers = {
             isPreviousSlotFriend(previous,current) {
                 return previous && previous.isFilled && previous.belongsTo==current.belongsTo;
+            },
+            isFreedomSlot(slot,group) {
+                return slot && (!slot.isFilled || slot.belongsTo==group.belongsTo && !group.has(slot))
             }
         }
     }
@@ -429,14 +432,13 @@ class RulesManager {
         groupWithReference(previousSlotY);
     }
     _getGroupFreedoms(group) {
-        let i = 0;
         let freedoms = [];
         group.slots.forEach((slot) => {
             let adjacentSlots = this._getAdjacentSlots(slot);
             for(let key in adjacentSlots) {
                 let adjacentSlot = adjacentSlots[key];
-                if(adjacentSlot && !adjacentSlot.isFilled) {
-                    let coords = adjacentSlot.x+","+adjacentSlot.y;
+                if(this.helpers.isFreedomSlot(adjacentSlot,group)) {
+                    let coords = adjacentSlot.getCoords();
                     if(!freedoms.includes(coords)) {
                         freedoms.push(coords);
                     }

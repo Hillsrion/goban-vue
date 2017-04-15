@@ -14,7 +14,7 @@ export default class GroupModel {
         this.id = Date.now();
         this.isAtari = false;
         this.isDead = false;
-        this.color = null;
+        this.belongsTo = null;
         this._insertRelationShips();
         // console.log("created group. id is"+this.id);
     }
@@ -38,6 +38,16 @@ export default class GroupModel {
             console.warn(`Can't add a falsy value to the group. Value : ${slots}`);
         }
     }
+
+    /**
+     * Verify if the slot in parameter belongs to the group.
+     * @param slot {SlotModel}
+     */
+    has(slot) {
+        return this.slots.some(function (internalSlot) {
+            return internalSlot.getCoords()==slot.getCoords();
+        })
+    }
     _insertRelationShips(slots) {
         let pickedSlots;
         if(!slots) {
@@ -48,9 +58,9 @@ export default class GroupModel {
         for(let key in pickedSlots) {
             if(pickedSlots[key]) {
                 let slot = pickedSlots[key];
-                // Defining group color if still not defined
-                if(!this.color) {
-                    this.color = slot.belongsTo;
+                // Defining group owner if still not defined
+                if(!this.belongsTo) {
+                    this.belongsTo = slot.belongsTo;
                 }
                 if(slot) {
                     this._insertSingleRelationship(slot);
