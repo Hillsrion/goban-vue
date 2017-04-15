@@ -54,12 +54,15 @@
     &__top {
         .goban__markers {
             padding-left: $markers-x-size + 2rem;
-            padding-right: $slot-size/2;
             &--x {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
+        }
+        .goban__marker {
+            flex-grow: 1;
+            min-width: $slot-size;
         }
     }
     &__field {

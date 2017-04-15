@@ -111,7 +111,7 @@ class RulesManager {
          * Here we're gonna reset the slot state so it can be refilled if possible.
          */
         slot.killReset(this.lastKilledBy);
-        console.log(`slot position ${slot.x},${slot.y} is dead`);
+        // console.log(`slot position ${slot.x},${slot.y} is dead`);
         this.dataTurn.deathList.push(slot);
     }
 
@@ -341,7 +341,7 @@ class RulesManager {
         for(let key in eyes) {
             let eyeModel = eyes[key];
             if(eyeModel && !this._isCheckedEye(eyeModel)) {
-                console.log("New eye");
+                // console.log("New eye");
                 for(let i = 0; i < eyeModel.eye.length; i++) {
                     let currentSlot = eyeModel.eye[i];
                     // This is ko. Stone is in atari and is not usable for a ko strike
@@ -354,7 +354,7 @@ class RulesManager {
                 this.dataTurn.eyes.push(eyeModel);
                 return response;
             } else if(eyeModel && this._isCheckedEye(eyeModel)) {
-                console.log("I already have this eye stored.")
+                // console.log("I already have this eye stored.")
             }
         }
     }
