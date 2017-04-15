@@ -4,25 +4,25 @@
 export default class EyeModel {
     /**
      * Array composed of {slotModel} objects.
-     * @param eye
+     * @param {Object} params The parameters of the model.
      */
-    constructor(eye) {
-        this.eye = eye;
+    constructor(params) {
+        this._setProps(params);
+        this._insertRelationShips();
+    }
+
+    _setProps(params) {
+        let idFragments = [];
+        let xPositions = [];
+        let yPositions = [];
+        this.eye = params.eye;
         this.slug =  "eye";
         this.centerCoords = {
             x: null,
             y: null
         };
         this.color = "";
-        this._getProps();
-        this._insertRelationShips();
-
-    }
-
-    _getProps() {
-        let idFragments = [];
-        let xPositions = [];
-        let yPositions = [];
+        this.origin = params.origin || null;
         for(let slot in this.eye) {
             if(this.eye[slot]) {
                 // Getting slots position to make the id of the eye.
@@ -50,8 +50,13 @@ export default class EyeModel {
         }
         idFragments = idFragments.sort();
         this.id = idFragments.join('');
-        this.centerCoords.x = this._getCenter(xPositions);
-        this.centerCoords.y = this._getCenter(yPositions);
+        if(!this.origin) {
+            this.centerCoords.x = this._getCenter(xPositions);
+            this.centerCoords.y = this._getCenter(yPositions);
+        } else {
+            this.centerCoords.x = this._getCenterFromOrigin().x;
+            this.centerCoords.y = this._getCenterFromOrigin().y;
+        }
     }
 
     /**
@@ -85,6 +90,27 @@ export default class EyeModel {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the center coords of 3 slots eyes.
+     * @returns {Object} Contains x and y positions of the eye.
+     * @private
+     */
+    _getCenterFromOrigin() {
+        let center;
+        let side = this.origin.side;
+        let referenceSlot = this.origin.referenceSlot;
+        if(side=="top") {
+            center = {x:referenceSlot.x, y:referenceSlot.y-1};
+        } else if(side=="bottom") {
+            center = {x:referenceSlot.x, y:referenceSlot.y+1};
+        } else if(side=="left") {
+            center = {x:referenceSlot.x-1, y:referenceSlot.y};
+        } else if(side=="right") {
+            center = {x:referenceSlot.x+1, y:referenceSlot.y};
+        }
+        return center;
     }
 }
 

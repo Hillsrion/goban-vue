@@ -37,6 +37,7 @@ export default Vue.component('gobanSlot',{
         classList() {
             let modifier = this.isFilled ? 'is-filled' : '';
             let isFree = this.belongsTo && this.belongsTo!==null && this.isFillableBy!==this.currentPlayer;
+            let isLastUsed = this.lastUsed ? "is-last" : '';
             let user;
             if(isFree) {
                 // Getting the state class in camelCase.
@@ -44,7 +45,7 @@ export default Vue.component('gobanSlot',{
             } else if(!this.isFilled) {
                 user = "is-free"
             }
-            return [this.className,modifier,user]
+            return [this.className,modifier,user,isLastUsed]
         },
         shadowClasses() {
             let modifier;

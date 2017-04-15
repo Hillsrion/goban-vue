@@ -267,7 +267,7 @@ class RulesManager {
             }
             return response;
         });
-        return isEye && slots.length>=3;
+        return isEye && slots.length>=2;
     }
 
     /**
@@ -302,7 +302,17 @@ class RulesManager {
                 thirdSibling = getSlot(x,y+2);
             }
             if(this._isEye([firstSibling,secondSibling,thirdSibling],slot)) {
-                return new EyeModel([slot,firstSibling,secondSibling,thirdSibling]);
+                const params = {
+                    eye: [slot,firstSibling,secondSibling,thirdSibling]
+                };
+                // If one of the eye's slot is undefined, we define the origin property of params object.
+                const predicate = params.eye.some(function(component) {
+                   return !component;
+                });
+                if(predicate) {
+                    params.origin =  {side:side, referenceSlot:slot}
+                }
+                return new EyeModel(params);
             } else {
                 return false;
             }
@@ -357,22 +367,6 @@ class RulesManager {
         });
     }
 
-    /**
-     *
-     * @param slot {SlotModel}
-     * @private
-     */
-    _isRegisteredGroup(slot) {
-        let predicate;
-        if(this.turnCount>=3) {
-            predicate = this.history.groups.some(function (group) {
-                return group.id==slot.relationships.groupId && group.isComplete;
-            });
-        } else {
-            predicate = false;
-        }
-        return predicate;
-    }
     _initKoStrike(slot) {
         const adjacentSlots = this._getAdjacentSlots(slot);
         let sibling;
