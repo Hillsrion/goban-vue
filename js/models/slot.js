@@ -9,6 +9,7 @@ export default class SlotModel {
         this.isFilled = params.isFilled;
         this.isFillableBy = params.isFillableBy;
         this.time = params.time;
+        this.setAtTurn = params.setAtTurn || null;
         this.belongsTo = params.belongsTo || null;
         this.lastUsed = params.lastUsed;
         this.isAtari = params.isAtari || false;
@@ -43,5 +44,8 @@ export default class SlotModel {
                 relationship = null;
             }
         }
+    }
+    getCoords() {
+        return this.x+','+this.y;
     }
 }

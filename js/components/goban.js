@@ -38,11 +38,6 @@ const gobanComponent = Vue.component('goban',{
              * to be done to get to the next turn.
              * The modified goban on the data will flow down on this and update the goban
              */
-            for(let key in this.slots) {
-                if(this.slots[key].lastUsed) {
-                    this.slots[key].lastUsed = false
-                }
-            }
             this.slots[slot.x+","+slot.y] = slot;
             const payload = RulesManager.eval(this.slots,this.turnCount);
             EventBus.$emit("goban:endPhase",payload);

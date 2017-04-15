@@ -31,13 +31,14 @@ export default Vue.component('gobanSlot',{
         isFilled: Boolean,
         koOpportunity: Boolean,
         isUsableForStrikeKo: Number,
+        turnCount: Number,
         model: Object
     },
     computed: {
         classList() {
             let modifier = this.isFilled ? 'is-filled' : '';
             let isFree = this.belongsTo && this.belongsTo!==null && this.isFillableBy!==this.currentPlayer;
-            let isLastUsed = this.lastUsed ? "is-last" : '';
+            let isLastUsed = this.model.setAtTurn==this.turnCount-1 ? "is-last" : '';
             let user;
             if(isFree) {
                 // Getting the state class in camelCase.
@@ -45,7 +46,7 @@ export default Vue.component('gobanSlot',{
             } else if(!this.isFilled) {
                 user = "is-free"
             }
-            return [this.className,modifier,user,isLastUsed]
+            return [this.className,user,modifier,isLastUsed]
         },
         shadowClasses() {
             let modifier;
@@ -94,6 +95,7 @@ export default Vue.component('gobanSlot',{
                 lastUsed: true,
                 isUsableForStrikeKo: this.isUsableForStrikeKo,
                 hasKoOpportunity: this.koOpportunity,
+                setAtTurn: this.turnCount,
                 relationships: this.model.relationships,
                 time: new Date()
             }

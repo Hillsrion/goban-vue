@@ -85,8 +85,9 @@ class RulesManager {
         }
     }
     _createTurnHistory() {
-        this.history[this.turnCount] = {};
-        this.history[this.turnCount].groups = [];
+        let turnHistory = this.history[this.turnCount] = {};
+        turnHistory.groups = [];
+        turnHistory.lastUsed = null;
     }
     _getGobanSlot(x,y) {
         return this.currentGoban[x+","+y];

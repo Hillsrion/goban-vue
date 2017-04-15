@@ -5,10 +5,31 @@
     transform: translate3d(1px,1px,0);
     position: relative;
     z-index: $firstLevelLayer;
+    .slot.is-last & {
+        &::before {
+            content:'';
+            width: 60%;
+            height: 60%;
+            transform: translate3d(-50%,-50%,0);
+            border-radius: 100%;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            border: 2px solid;
+            z-index: $secondLevelLayer;
+            box-sizing: border-box;
+        }
+    }
     .slot.userBlack & {
         background-color: black;
+        &::before {
+            border-color: white;
+        }
     }
     .slot.userWhite & {
         background-color: $white--gloomy;
+        &::before {
+            border-color: black;
+        }
     }
 }
