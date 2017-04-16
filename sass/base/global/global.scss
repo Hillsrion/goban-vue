@@ -17,7 +17,7 @@ body {
         position: relative;
     }
     &--hoshi {
-        $offset: calc(-50% + 1px);
+        $offset: calc(-50% + 2px);
         position: absolute;
         top: 50%;
         left: 50%;
