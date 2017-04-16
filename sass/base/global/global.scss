@@ -12,3 +12,15 @@ body {
     background-image: url("../images/background.jpg");
 }
 
+.wrapper {
+    &--relative {
+        position: relative;
+    }
+    &--hoshi {
+        $offset: calc(-50% + 1px);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate3d($offset,$offset,0);
+    }
+}

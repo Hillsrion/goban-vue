@@ -16,6 +16,7 @@ export default class SlotModel {
         this.hasKoOpportunity = params.hasKoOpportunity || false;
         this.isUsableForStrikeKo = params.isUsableForStrikeKo || 0;
         this.relationships = params.relationships || {};
+        this.isHoshi = params.isHoshi || false;
     }
 
     /**

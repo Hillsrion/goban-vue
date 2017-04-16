@@ -26,8 +26,11 @@
                             :is-usable-for-strike-ko="slot.isUsableForStrikeKo"
                             :turn-count="getTurnCount"
                             :model="slot">
-                        <div slot="stone-wrapper">
+                        <div class="wrapper wrapper--relative" slot="stone-wrapper">
                             <stone></stone>
+                        </div>
+                        <div class="wrapper wrapper--hoshi" slot="hoshi-wrapper">
+                            <div class="hoshi"></div>
                         </div>
                     </goban-slot>
                 </div>

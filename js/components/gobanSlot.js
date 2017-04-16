@@ -9,6 +9,7 @@ export default Vue.component('gobanSlot',{
     template:
         `<div @click='onClick' @mouseover='onMouseOver' @mouseleave="onMouseLeave" :class='classList'>
             <slot v-if="shouldDisplayStone" name='stone-wrapper'></slot>
+            <slot v-if="isHoshi" name='hoshi-wrapper'></slot>
             <div :class="shadowClasses" v-show='shouldDisplayShadow'></div>
         </div>`,
     data() {
@@ -61,6 +62,9 @@ export default Vue.component('gobanSlot',{
         shouldDisplayStone() {
             return this.isFilled
         },
+        isHoshi() {
+            return this.model.isHoshi
+        },
         shouldDisplayShadow() {
             return this.hasShadow && this.isFillableByCurrentPlayer();
         }
@@ -83,7 +87,7 @@ export default Vue.component('gobanSlot',{
         },
         /**
          * Params for SlotModel instanciation emitted in playPhase event.
-         * @returns {{x: int, y: int, isFilled: boolean, isFillableBy: string, belongsTo: (String|*|null|string|string), lastUsed: boolean, isUsableForStrikeKo: boolean, hasKoOpportunity: boolean, relationships: Object, time: Date}}
+         * @returns {{x: Number, y: Number, isFilled: boolean, isFillableBy: string, belongsTo: String, lastUsed: boolean, isUsableForStrikeKo: boolean, hasKoOpportunity: Boolean, setAtTurn: Number, relationships: Object, isHoshi: Boolean, time: Date}}
          */
         getNewSlotParams() {
             return {
@@ -97,6 +101,7 @@ export default Vue.component('gobanSlot',{
                 hasKoOpportunity: this.koOpportunity,
                 setAtTurn: this.turnCount,
                 relationships: this.model.relationships,
+                isHoshi: this.model.isHoshi,
                 time: new Date()
             }
         },

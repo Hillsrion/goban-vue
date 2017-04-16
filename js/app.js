@@ -5,6 +5,7 @@ import gobanMarker from "./components/gobanMarker"
 import stone from "./components/Stone"
 import slotModel from "./models/slot"
 import EventBus from "./controllers/EventBus"
+import hoshiCoords from "./settings/hoshi"
 const vm = new Vue({
     el: "#app",
     data: {
@@ -17,6 +18,7 @@ const vm = new Vue({
             x: "x",
             y: "y"
         },
+        hoshiCoords: hoshiCoords,
         self: "black",
         opponent: "white",
         currentPlayer: null,
@@ -45,8 +47,13 @@ const vm = new Vue({
         createSlotsPosition() {
             let map = {};
             let size = this.size;
+            let isHoshi;
+            let hoshiCoords = this.hoshiCoords[this.size].map(function (coord) {
+                return coord.x+","+coord.y;
+            });
             for(let y = 1; y <= size;y++) {
                 for(let x = 1 ;x <= size; x++) {
+                    isHoshi = hoshiCoords.includes(x+","+y);
                     const params = {
                         x:x,
                         y:y,
@@ -54,7 +61,8 @@ const vm = new Vue({
                         isFillableBy: "",
                         time: null,
                         belongsTo: null,
-                        lastUsed: false
+                        lastUsed: false,
+                        isHoshi: isHoshi
                     };
                     let model = new slotModel(params);
                     let key = x+","+y;
