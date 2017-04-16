@@ -307,14 +307,22 @@ class RulesManager {
             }
             if(this._isEye([firstSibling,secondSibling,thirdSibling],slot)) {
                 const params = {
-                    eye: [slot,firstSibling,secondSibling,thirdSibling]
+                    eye: [slot,firstSibling,secondSibling,thirdSibling],
+                    isFull: true
                 };
                 // If one of the eye's slot is undefined, we define the origin property of params object.
-                const predicate = params.eye.some(function(component) {
-                   return !component;
+                const existsOutOfGameSlots = params.eye.some(function(component) {
+                    return !component;
                 });
-                if(predicate) {
-                    params.origin =  {side:side, referenceSlot:slot}
+                const areAllSlotsFilled = params.eye.every(function (component) {
+                    return component && component.isFilled;
+                });
+                if(existsOutOfGameSlots) {
+                    params.origin =  {side:side, referenceSlot:slot};
+                    params.isFull = false;
+                }
+                if(params.isFull && !areAllSlotsFilled) {
+                    return false;
                 }
                 return new EyeModel(params);
             } else {

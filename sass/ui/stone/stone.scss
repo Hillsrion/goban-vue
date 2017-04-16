@@ -2,7 +2,7 @@
     width: $stone-size;
     height: $stone-size;
     border-radius: 100%;
-    transform: translate3d(1px,1px,0);
+    transform: translate3d(0.1rem,0.1rem,0);
     position: relative;
     z-index: $firstLevelLayer;
     .slot.is-last & {
@@ -23,7 +23,7 @@
     .slot.userBlack & {
         background-color: black;
         &::before {
-            border-color: white;
+            border-color: $white--gloomy;
         }
     }
     .slot.userWhite & {

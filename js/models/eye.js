@@ -23,6 +23,8 @@ export default class EyeModel {
         };
         this.color = "";
         this.origin = params.origin || null;
+        this.isFull = params.isFull;
+        this.slotLength = 0;
         for(let slot in this.eye) {
             if(this.eye[slot]) {
                 // Getting slots position to make the id of the eye.
@@ -43,6 +45,7 @@ export default class EyeModel {
                 if(!this.color) {
                     this.color = this.eye[slot].belongsTo;
                 }
+                this.slotLength++;
             } else {
                 // Push 00 if the model is null (out of the goban, so there's no instance of SlotModel
                 idFragments.push('00');
@@ -50,12 +53,12 @@ export default class EyeModel {
         }
         idFragments = idFragments.sort();
         this.id = idFragments.join('');
-        if(!this.origin) {
+        if(this.isFull) {
             this.centerCoords.x = this._getCenter(xPositions);
             this.centerCoords.y = this._getCenter(yPositions);
         } else {
-            this.centerCoords.x = this._getCenterFromOrigin().x;
-            this.centerCoords.y = this._getCenterFromOrigin().y;
+            this.centerCoords.x = this._getCenterFromReference().x;
+            this.centerCoords.y = this._getCenterFromReference().y;
         }
     }
 
@@ -97,7 +100,7 @@ export default class EyeModel {
      * @returns {Object} Contains x and y positions of the eye.
      * @private
      */
-    _getCenterFromOrigin() {
+    _getCenterFromReference() {
         let center;
         let side = this.origin.side;
         let referenceSlot = this.origin.referenceSlot;
@@ -111,6 +114,12 @@ export default class EyeModel {
             center = {x:referenceSlot.x+1, y:referenceSlot.y};
         }
         return center;
+    }
+    isValid() {
+        return this.isFull && this.slotLength==4;
+    }
+    isPartial() {
+        return !this.isFull && this.slotLength==3;
     }
 }
 
